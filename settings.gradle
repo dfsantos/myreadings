@@ -1,1 +1,14 @@
 rootProject.name = 'myreadings'
+
+// Instala o hook de commit-msg (valida Conventional Commits, ver
+// .claude/rules/commit-conventions.md) automaticamente, sem passo manual
+// de setup. Idempotente: só grava a config se ainda não estiver correta.
+def hooksDir = new File(rootDir, '.githooks')
+if (hooksDir.exists()) {
+    def readConfig = ['git', 'config', '--local', 'core.hooksPath'].execute(null, rootDir)
+    readConfig.waitFor()
+    def current = readConfig.in.text.trim()
+    if (current != '.githooks') {
+        ['git', 'config', '--local', 'core.hooksPath', '.githooks'].execute(null, rootDir).waitFor()
+    }
+}
