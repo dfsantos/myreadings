@@ -11,7 +11,7 @@ collection:
     meta:
       id: fld_8c12d67a40704457a9dfe120a0ace0db
       created: 1791038824047
-      modified: 1791038824047
+      modified: 1791041524875
       sortKey: 1000
       description: Endpoints públicos de autenticação (/api/v1/auth) — não exigem token.
     children:
@@ -20,7 +20,7 @@ collection:
         meta:
           id: req_4fa94a0496bf4029b00fcd11e7545b2a
           created: 1791038824048
-          modified: 1791038824048
+          modified: 1791040268286
           isPrivate: false
           description: POST /api/v1/auth/register — cria a conta. Retorna 201 com {id,
             email}.
@@ -51,7 +51,7 @@ collection:
         meta:
           id: req_1cc1ebbdf41c4b13bc7e91f5b0ff368a
           created: 1791038824049
-          modified: 1791038824049
+          modified: 1791041439940
           isPrivate: false
           description: POST /api/v1/auth/login — autentica e retorna {accessToken,
             expiresInSeconds}. Copie o accessToken para a variável de ambiente
@@ -70,6 +70,17 @@ collection:
             value: application/json
         authentication:
           type: none
+        scripts:
+          afterResponse: >
+            const jsonBody = insomnia.response.json();
+
+
+            insomnia.collectionVariables.set("access_token",
+            jsonBody.accessToken);
+
+
+            const accessToken =
+            insomnia.collectionVariables.get("access_token");
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -82,7 +93,7 @@ collection:
     meta:
       id: fld_9f24d5761f0b44bdad53f3cda83ef7ad
       created: 1791038824050
-      modified: 1791038824050
+      modified: 1791041928850
       sortKey: 2000
       description: Endpoints autenticados de livros (/api/v1/books). Todas as
         requisições herdam o Bearer token definido aqui, lido da variável de
@@ -93,7 +104,7 @@ collection:
         meta:
           id: req_93db7b12e68b44dc99cb8c23103c8a07
           created: 1791038824050
-          modified: 1791038824050
+          modified: 1791041621375
           isPrivate: false
           description: POST /api/v1/books — cadastra um livro para o usuário autenticado.
             Apenas title e author são obrigatórios; status default é QUERO_LER
@@ -104,7 +115,7 @@ collection:
           mimeType: application/json
           text: |-
             {
-              "title": "O Guia do Mochileiro das Galáxias",
+              "title": "",
               "author": "Douglas Adams",
               "publisher": "Arqueiro",
               "publicationYear": 1979,
@@ -119,6 +130,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -127,17 +141,29 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{ _.base_url }}/api/v1/books/{{ _.book_id }}"
+      - url: "{{ _.base_url }}/api/v1/books/01e18f7a-771c-4a0e-90fa-c656358bd41e"
         name: Buscar livro por id
         meta:
           id: req_f93704e7a9e44b1a93dccad4ca81c9a0
           created: 1791038824050
-          modified: 1791038824050
+          modified: 1791041928614
           isPrivate: false
           description: GET /api/v1/books/{id} — retorna 404 se o livro não existir ou não
             pertencer ao usuário autenticado.
           sortKey: 2000
         method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
+        scripts:
+          afterResponse: |+
+            
+            const jsonBody = insomnia.response.json();
+
+            const bookId = jsonBody.id;
+
+            insomnia.collectionVariables.set("book_id", bookId);
+
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -151,7 +177,7 @@ collection:
         meta:
           id: req_3df4eb65d1d1405584459d68192ffaa3
           created: 1791038824051
-          modified: 1791038824051
+          modified: 1791041893692
           isPrivate: false
           description: "PATCH /api/v1/books/{id} — merge parcial: campos omitidos/null não
             são alterados. Ajuste o corpo conforme o que deseja atualizar
@@ -168,6 +194,9 @@ collection:
         headers:
           - name: Content-Type
             value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -181,12 +210,15 @@ collection:
         meta:
           id: req_e299fc1bfa464457b5e18807c77d3d7f
           created: 1791038824051
-          modified: 1791038824051
+          modified: 1791041605465
           isPrivate: false
           description: DELETE /api/v1/books/{id} — retorna 204. GET subsequente ao id
             removido retorna 404.
           sortKey: 4000
         method: DELETE
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -200,7 +232,7 @@ collection:
         meta:
           id: req_e5421e6aed1a42e29dd07a8d51fa2583
           created: 1791038824052
-          modified: 1791038824052
+          modified: 1791041569658
           isPrivate: false
           description: GET /api/v1/books — paginado (page/size/sort) e filtrável por q,
             status, genre, minRating/maxRating combinados em AND. Habilite os
@@ -233,6 +265,9 @@ collection:
           - name: sort
             value: createdAt,desc
             disabled: true
+        authentication:
+          type: bearer
+          token: "{{ _.access_token }}"
         settings:
           renderRequestBody: true
           encodeUrl: true
@@ -279,17 +314,17 @@ cookieJar:
   meta:
     id: jar_69e0a240d32ed39c771d9b709781a2a9b743268e
     created: 1791038824135
-    modified: 1791038824135
+    modified: 1791041928849
 environments:
   name: Base Environment
   meta:
     id: env_858cee2d568c423daad2e785b45f8445
     created: 1791038824046
-    modified: 1791038824046
+    modified: 1791041928850
     isPrivate: false
   data:
     base_url: http://localhost:8080
     email: leitor@example.com
     password: senha12345
+    book_id: 01e18f7a-771c-4a0e-90fa-c656358bd41e
     access_token: ""
-    book_id: ""
