@@ -129,7 +129,7 @@ dev.dfsantos.myreadings
 ## Collection do Insomnia
 
 Uma collection pronta com todos os endpoints (auth, livros e health check)
-está em [`insomnia/myreadings.insomnia.json`](insomnia/myreadings.insomnia.json).
+está em [`myreadings-wrk_01024a6a7cee4616bb802d44448cbc53.yaml`](myreadings-wrk_01024a6a7cee4616bb802d44448cbc53.yaml).
 Para usar:
 
 1. No Insomnia: `Application` → `Preferences` → `Data` → `Import Data` (ou

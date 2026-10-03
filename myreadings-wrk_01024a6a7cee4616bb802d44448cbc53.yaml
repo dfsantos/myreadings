@@ -1,0 +1,295 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: myreadings
+meta:
+  id: wrk_01024a6a7cee4616bb802d44448cbc53
+  created: 1791038824042
+  modified: 1791038824042
+  description: ""
+collection:
+  - name: Auth
+    meta:
+      id: fld_8c12d67a40704457a9dfe120a0ace0db
+      created: 1791038824047
+      modified: 1791038824047
+      sortKey: 1000
+      description: Endpoints públicos de autenticação (/api/v1/auth) — não exigem token.
+    children:
+      - url: "{{ _.base_url }}/api/v1/auth/register"
+        name: Registrar usuário
+        meta:
+          id: req_4fa94a0496bf4029b00fcd11e7545b2a
+          created: 1791038824048
+          modified: 1791038824048
+          isPrivate: false
+          description: POST /api/v1/auth/register — cria a conta. Retorna 201 com {id,
+            email}.
+          sortKey: 1000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "{{ _.email }}",
+              "password": "{{ _.password }}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/v1/auth/login"
+        name: Login
+        meta:
+          id: req_1cc1ebbdf41c4b13bc7e91f5b0ff368a
+          created: 1791038824049
+          modified: 1791038824049
+          isPrivate: false
+          description: POST /api/v1/auth/login — autentica e retorna {accessToken,
+            expiresInSeconds}. Copie o accessToken para a variável de ambiente
+            access_token.
+          sortKey: 2000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "{{ _.email }}",
+              "password": "{{ _.password }}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Livros
+    meta:
+      id: fld_9f24d5761f0b44bdad53f3cda83ef7ad
+      created: 1791038824050
+      modified: 1791038824050
+      sortKey: 2000
+      description: Endpoints autenticados de livros (/api/v1/books). Todas as
+        requisições herdam o Bearer token definido aqui, lido da variável de
+        ambiente access_token (preenchida após o Login).
+    children:
+      - url: "{{ _.base_url }}/api/v1/books"
+        name: Criar livro
+        meta:
+          id: req_93db7b12e68b44dc99cb8c23103c8a07
+          created: 1791038824050
+          modified: 1791038824050
+          isPrivate: false
+          description: POST /api/v1/books — cadastra um livro para o usuário autenticado.
+            Apenas title e author são obrigatórios; status default é QUERO_LER
+            quando omitido.
+          sortKey: 1000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "title": "O Guia do Mochileiro das Galáxias",
+              "author": "Douglas Adams",
+              "publisher": "Arqueiro",
+              "publicationYear": 1979,
+              "pageCount": 224,
+              "genre": "Ficção científica",
+              "coverUrl": "https://example.com/capas/mochileiro.jpg",
+              "status": "QUERO_LER",
+              "startDate": null,
+              "endDate": null,
+              "rating": null
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/v1/books/{{ _.book_id }}"
+        name: Buscar livro por id
+        meta:
+          id: req_f93704e7a9e44b1a93dccad4ca81c9a0
+          created: 1791038824050
+          modified: 1791038824050
+          isPrivate: false
+          description: GET /api/v1/books/{id} — retorna 404 se o livro não existir ou não
+            pertencer ao usuário autenticado.
+          sortKey: 2000
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/v1/books/{{ _.book_id }}"
+        name: Atualizar livro (PATCH parcial)
+        meta:
+          id: req_3df4eb65d1d1405584459d68192ffaa3
+          created: 1791038824051
+          modified: 1791038824051
+          isPrivate: false
+          description: "PATCH /api/v1/books/{id} — merge parcial: campos omitidos/null não
+            são alterados. Ajuste o corpo conforme o que deseja atualizar
+            (status, datas, rating, etc.)."
+          sortKey: 3000
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "status": "LENDO",
+              "startDate": "2026-01-10"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/v1/books/{{ _.book_id }}"
+        name: Remover livro
+        meta:
+          id: req_e299fc1bfa464457b5e18807c77d3d7f
+          created: 1791038824051
+          modified: 1791038824051
+          isPrivate: false
+          description: DELETE /api/v1/books/{id} — retorna 204. GET subsequente ao id
+            removido retorna 404.
+          sortKey: 4000
+        method: DELETE
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/api/v1/books"
+        name: Listar/buscar livros
+        meta:
+          id: req_e5421e6aed1a42e29dd07a8d51fa2583
+          created: 1791038824052
+          modified: 1791038824052
+          isPrivate: false
+          description: GET /api/v1/books — paginado (page/size/sort) e filtrável por q,
+            status, genre, minRating/maxRating combinados em AND. Habilite os
+            parâmetros desejados (todos vêm desabilitados por padrão, exceto a
+            paginação).
+          sortKey: 5000
+        method: GET
+        parameters:
+          - name: q
+            value: mochileiro
+            disabled: true
+          - name: status
+            value: LENDO
+            disabled: true
+          - name: genre
+            value: Ficção científica
+            disabled: true
+          - name: minRating
+            value: "4"
+            disabled: true
+          - name: maxRating
+            value: "5"
+            disabled: true
+          - name: page
+            value: "0"
+            disabled: false
+          - name: size
+            value: "20"
+            disabled: false
+          - name: sort
+            value: createdAt,desc
+            disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    authentication:
+      type: bearer
+      disabled: false
+      token: "{{ _.access_token }}"
+      prefix: Bearer
+  - name: Observabilidade
+    meta:
+      id: fld_5e8386f03a654a4d8a6ac09c21aebbd7
+      created: 1791038824052
+      modified: 1791038824052
+      sortKey: 3000
+      description: Health check do Actuator — rota pública.
+    children:
+      - url: "{{ _.base_url }}/actuator/health"
+        name: Health check
+        meta:
+          id: req_3f554e0574534520a5bdbb4a88d52c35
+          created: 1791038824052
+          modified: 1791038824052
+          isPrivate: false
+          description: GET /actuator/health — liberado em SecurityConfig sem autenticação.
+          sortKey: 1000
+        method: GET
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_69e0a240d32ed39c771d9b709781a2a9b743268e
+    created: 1791038824135
+    modified: 1791038824135
+environments:
+  name: Base Environment
+  meta:
+    id: env_858cee2d568c423daad2e785b45f8445
+    created: 1791038824046
+    modified: 1791038824046
+    isPrivate: false
+  data:
+    base_url: http://localhost:8080
+    email: leitor@example.com
+    password: senha12345
+    access_token: ""
+    book_id: ""
