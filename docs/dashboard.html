@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>myreadings — Acompanhamento do trabalho</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --surface-alt: #f0f2f5;
+    --text: #1a1d23;
+    --text-muted: #5b6270;
+    --border: #e1e4e9;
+    --accent: #2f6feb;
+    --accent-weak: #e8f0fe;
+    --green: #1a7f37;
+    --green-weak: #dafbe1;
+    --amber: #9a6700;
+    --amber-weak: #fff3cd;
+    --gray: #6b7280;
+    --gray-weak: #eceff1;
+    --red: #c4281e;
+    --red-weak: #ffe9e7;
+    --shadow: 0 1px 2px rgba(0,0,0,0.06), 0 1px 1px rgba(0,0,0,0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --surface: #181b21;
+      --surface-alt: #20242b;
+      --text: #e6e8eb;
+      --text-muted: #9aa2b1;
+      --border: #2a2f38;
+      --accent: #5b9bff;
+      --accent-weak: #16263f;
+      --green: #4ade80;
+      --green-weak: #123321;
+      --amber: #eab308;
+      --amber-weak: #332a0e;
+      --gray: #9aa2b1;
+      --gray-weak: #242830;
+      --red: #ff6b6b;
+      --red-weak: #3a1f1f;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.45;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 16px 64px;
+  }
+  header.page-header {
+    padding: 8px 0 20px;
+  }
+  header.page-header h1 {
+    font-size: 1.5rem;
+    margin: 0 0 4px;
+  }
+  header.page-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  header.page-header a { color: var(--accent); text-decoration: none; }
+  header.page-header a:hover { text-decoration: underline; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .card .value {
+    font-size: 1.6rem;
+    font-weight: 650;
+    line-height: 1.1;
+  }
+  .card .label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  section.block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  section.block > h2 {
+    font-size: 1.05rem;
+    margin: 0 0 12px;
+  }
+
+  .hint-lists {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .hint-list h3 {
+    font-size: 0.85rem;
+    margin: 0 0 6px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .hint-list ul { margin: 0; padding-left: 18px; font-size: 0.88rem; }
+  .hint-list .empty { color: var(--text-muted); font-size: 0.85rem; font-style: italic; }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .toolbar input[type="search"] {
+    flex: 1 1 220px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface-alt);
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+  .toolbar select {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface-alt);
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+
+  .group-heading {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin: 18px 0 8px;
+  }
+  .group-heading:first-child { margin-top: 0; }
+
+  .story {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--surface-alt);
+  }
+  .story > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .story > summary::-webkit-details-marker { display: none; }
+  .story > summary::before {
+    content: "▸";
+    color: var(--text-muted);
+    transition: transform 0.15s ease;
+    flex: 0 0 auto;
+  }
+  .story[open] > summary::before { transform: rotate(90deg); }
+  .story-id { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; flex: 0 0 auto; }
+  .story-title { font-weight: 600; flex: 1 1 220px; min-width: 0; }
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.backlog { background: var(--gray-weak); color: var(--gray); }
+  .badge.in_progress { background: var(--amber-weak); color: var(--amber); }
+  .badge.done { background: var(--green-weak); color: var(--green); }
+  .progress-wrap {
+    flex: 0 0 120px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .progress-bar > div {
+    height: 100%;
+    background: var(--accent);
+  }
+  .progress-count { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+
+  .story-body {
+    padding: 0 12px 12px 34px;
+    font-size: 0.86rem;
+  }
+  .story-meta {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+  }
+  .story-meta code { font-size: 0.78rem; }
+  .task-list { list-style: none; margin: 0; padding: 0; }
+  .task-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 4px 0;
+    border-top: 1px solid var(--border);
+  }
+  .task-list li:first-child { border-top: none; }
+  .task-check {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+    border-radius: 3px;
+    border: 1.5px solid var(--text-muted);
+  }
+  .task-check.done { background: var(--green); border-color: var(--green); }
+  .task-check.in_progress { background: var(--amber-weak); border-color: var(--amber); }
+  .task-text { flex: 1 1 auto; min-width: 0; }
+  .task-text.done { color: var(--text-muted); text-decoration: line-through; }
+  .task-dates { flex: 0 0 auto; font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; }
+  code {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 0.85em;
+  }
+
+  table.bugs { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  table.bugs th, table.bugs td {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.bugs th { color: var(--text-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; }
+  .empty-state { color: var(--text-muted); font-style: italic; font-size: 0.88rem; }
+
+  footer.page-footer {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-align: center;
+    margin-top: 24px;
+  }
+  footer.page-footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <header class="page-header">
+    <h1>myreadings — Acompanhamento do trabalho</h1>
+    <p>
+      Backlog derivado de <a href="specs/catalogo-de-leituras-backend.md">docs/specs/</a> e
+      <a href="plans/catalogo-de-leituras-backend.md">docs/plans/</a>.
+      Mantido pelo subagent <code>docs-plan-keeper</code> —
+      última atualização: <span id="last-updated">—</span>.
+    </p>
+  </header>
+
+  <section class="cards" id="summary-cards" aria-label="Resumo"></section>
+
+  <div class="hint-lists">
+    <div class="hint-list">
+      <h3>Prontas para iniciar</h3>
+      <div id="ready-list"></div>
+    </div>
+    <div class="hint-list">
+      <h3>Bloqueadas por dependência</h3>
+      <div id="blocked-list"></div>
+    </div>
+    <div class="hint-list">
+      <h3>Em andamento agora</h3>
+      <div id="in-progress-list"></div>
+    </div>
+  </div>
+
+  <section class="block">
+    <h2>Backlog</h2>
+    <div class="toolbar">
+      <input type="search" id="filter-text" placeholder="Filtrar por texto (história ou tarefa)…">
+      <select id="filter-status">
+        <option value="all">Todos os status</option>
+        <option value="backlog">Backlog</option>
+        <option value="in_progress">Em andamento</option>
+        <option value="done">Concluída</option>
+      </select>
+    </div>
+    <div id="backlog-root"></div>
+  </section>
+
+  <section class="block">
+    <h2>Bugs encontrados</h2>
+    <div id="bugs-root"></div>
+  </section>
+
+  <footer class="page-footer">
+    Gerado a partir dos dados embutidos neste arquivo (<code>#dashboard-data</code>).
+    Edite apenas os dados — não recalcule médias manualmente, elas são derivadas em tempo de carregamento.
+  </footer>
+</main>
+
+<script type="application/json" id="dashboard-data">
+{
+  "meta": {
+    "lastUpdated": "2026-10-03T00:10:26-03:00",
+    "specFile": "specs/catalogo-de-leituras-backend.md",
+    "planFile": "plans/catalogo-de-leituras-backend.md"
+  },
+  "stories": [
+    {
+      "id": "US-01",
+      "title": "Criar conta",
+      "group": "Autenticação e conta",
+      "file": "01-criar-conta.md",
+      "dependsOn": [],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Adicionar dependências `spring-boot-starter-security`, `jjwt-api`, `jjwt-impl`, `jjwt-jackson` ao `build.gradle`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar migração Flyway `src/main/resources/db/migration/V1__create_users_table.sql` (tabela `users`: `id`, `email` UNIQUE, `password_hash`, `created_at`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar entidade `User` (`user/User.java`) com `id` (UUID), `email`, `passwordHash`, `createdAt`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar `UserRepository` (`user/UserRepository.java`) com `findByEmail(String email)`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar `SecurityConfig` (`config/SecurityConfig.java`) com bean `PasswordEncoder` (`BCryptPasswordEncoder`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar DTO `RegisterRequest` (`auth/dto/RegisterRequest.java`) com `email` (`@Email @NotBlank`) e `password` (`@NotBlank @Size(min = 8)`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar DTO de resposta `UserResponse`/`RegisterResponse` (`id`, `email`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `AuthService.register(...)`: verifica unicidade do e-mail, gera hash da senha, persiste o `User`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `AuthController.register` → `POST /api/v1/auth/register`, retorna `201`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar `common/GlobalExceptionHandler.java` e mapear `DataIntegrityViolationException` → `409` (`ProblemDetail`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: registro válido retorna `201` com `id` gerado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: e-mail duplicado retorna `409`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: senha curta retorna `400`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-02",
+      "title": "Fazer login",
+      "group": "Autenticação e conta",
+      "file": "02-fazer-login.md",
+      "dependsOn": [
+        "US-01"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Criar `JwtTokenProvider` (`auth/JwtTokenProvider.java`): gera JWT HS256 com claim `sub = user.id`, `iat`, `exp`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Adicionar configuração `app.jwt.secret` (via env var `JWT_SECRET`) e `app.jwt.expiration-minutes` (default `1440`) em `application.yml`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar DTO `LoginRequest` (`auth/dto/LoginRequest.java`) com `email`/`password`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar DTO `TokenResponse` (`auth/dto/TokenResponse.java`) com `accessToken`/`expiresInSeconds`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `AuthService.login(...)`: busca `User` por e-mail, valida senha com `PasswordEncoder.matches`, gera token via `JwtTokenProvider`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Lançar `BadCredentialsException` em caso de e-mail não encontrado ou senha incorreta (mesma exceção para os dois casos).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `AuthController.login` → `POST /api/v1/auth/login`, retorna `200`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Mapear `BadCredentialsException` → `401` no `GlobalExceptionHandler`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: login com credenciais válidas retorna token.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: login com e-mail inexistente retorna `401`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: login com senha incorreta retorna `401`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-03",
+      "title": "Isolamento automático por usuário",
+      "group": "Autenticação e conta",
+      "file": "03-isolamento-por-usuario.md",
+      "dependsOn": [
+        "US-02"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Implementar `JwtAuthenticationFilter` (`auth/JwtAuthenticationFilter.java`): extrai `Authorization: Bearer <token>`, valida via `JwtTokenProvider`, popula o `SecurityContext` com o `userId` autenticado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Configurar `SecurityFilterChain` em `SecurityConfig`: `SessionCreationPolicy.STATELESS`, CSRF desabilitado, `JwtAuthenticationFilter` registrado antes do filtro padrão.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Liberar rotas públicas (`/api/v1/auth/**`, `/actuator/health`); exigir autenticação em todo o restante.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar um helper para obter o usuário autenticado atual em controllers/services (ex: `CurrentUser.id()` lendo do `SecurityContextHolder`, ou `@AuthenticationPrincipal` customizado).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Mapear falha de validação do token (`JwtException`) → `401` no `GlobalExceptionHandler`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: requisição sem header `Authorization` a uma rota protegida retorna `401`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: requisição com token inválido/expirado retorna `401`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: requisição com token válido é autenticada e o `userId` fica disponível no contexto da aplicação.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-04",
+      "title": "Cadastrar livro com dados básicos e capa",
+      "group": "Cadastro de livros/leituras",
+      "file": "04-cadastrar-livro-dados-basicos.md",
+      "dependsOn": [
+        "US-03"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Criar migração Flyway `src/main/resources/db/migration/V2__create_books_table.sql` (tabela `books` conforme seção 4.2 do plano técnico, com índices `idx_books_user_id`, `idx_books_user_status`, `idx_books_user_genre`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar enum `ReadingStatus` (`book/ReadingStatus.java`): `QUERO_LER`, `LENDO`, `LIDO`, `ABANDONADO`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar entidade `Book` (`book/Book.java`) com todos os campos (`title`, `author`, `publisher`, `publicationYear`, `pageCount`, `genre`, `coverUrl`, `status` com `@Enumerated(EnumType.STRING)`, `startDate`, `endDate`, `rating`, `createdAt`, `updatedAt`, `userId`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar `BookRepository` (`book/BookRepository.java`) estendendo `JpaRepository<Book, UUID>` e `JpaSpecificationExecutor<Book>`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar DTO `BookCreateRequest` (`book/dto/BookCreateRequest.java`) com `title`/`author` obrigatórios e demais campos opcionais.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar DTO `BookResponse` (`book/dto/BookResponse.java`) e mapper entidade ↔ DTO.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `BookService.create(...)`: associa `userId` do contexto de segurança (ver US-03), persiste via `BookRepository`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `BookController.create` → `POST /api/v1/books`, retorna `201` com `BookResponse`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: criação com todos os campos preenchidos retorna `201` com `id` gerado e todos os valores persistidos corretamente, incluindo `coverUrl`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-05",
+      "title": "Cadastrar livro sem preencher campos opcionais",
+      "group": "Cadastro de livros/leituras",
+      "file": "05-cadastrar-livro-campos-opcionais.md",
+      "dependsOn": [
+        "US-04"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Confirmar que `BookCreateRequest` não possui `@NotNull`/`@NotBlank` em nenhum campo além de `title` e `author`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar valor default `status = QUERO_LER` quando omitido na criação (em `BookService.create` ou como default da entidade `Book`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: criação enviando somente `title` e `author` retorna `201` com os demais campos `null` e `status = QUERO_LER`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: criação informando `title`, `author` e `coverUrl` (sem os demais opcionais) retorna `201` com `coverUrl` persistida e o restante `null`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-06",
+      "title": "Rejeitar cadastro com campo obrigatório ausente",
+      "group": "Cadastro de livros/leituras",
+      "file": "06-validacao-campo-obrigatorio-ausente.md",
+      "dependsOn": [
+        "US-04"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Adicionar `@NotBlank` em `title` e `author` no `BookCreateRequest`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar `common/GlobalExceptionHandler.java` (`@RestControllerAdvice`) tratando `MethodArgumentNotValidException` → `ProblemDetail` `400`, listando cada campo inválido e sua mensagem.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Garantir que a mensagem de erro identifica claramente qual campo falhou (ex: `{\"errors\": [{\"field\": \"title\", \"message\": \"não pode estar em branco\"}]}`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: POST sem `title` retorna `400` citando o campo `title`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: POST sem `author` retorna `400` citando o campo `author`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: POST sem `title` e sem `author` retorna `400` citando os dois campos.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-07",
+      "title": "Marcar status de leitura",
+      "group": "Acompanhamento da leitura",
+      "file": "07-marcar-status-leitura.md",
+      "dependsOn": [
+        "US-04"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Criar DTO `BookUpdateRequest` (`book/dto/BookUpdateRequest.java`) com todos os campos opcionais, incluindo `status`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar exceção `NotFoundException` (`common/NotFoundException.java`) e mapear para `404` no `GlobalExceptionHandler`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `BookService.update(...)`: busca o livro garantindo `userId` igual ao do contexto autenticado (senão lança `NotFoundException`), aplica somente os campos não nulos do `BookUpdateRequest`, persiste e atualiza `updatedAt`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `BookController.update` → `PATCH /api/v1/books/{id}`, retorna `200` com `BookResponse` atualizado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Garantir que valor de `status` fora do enum é rejeitado com `400` (mapear `HttpMessageNotReadableException`/erro de deserialização do enum no `GlobalExceptionHandler`, se necessário).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH alterando apenas `status` retorna `200` e preserva os demais campos.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH com `status` inválido (ex: `\"LENDO_DEMAIS\"`) retorna `400`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH em livro de outro usuário retorna `404`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-08",
+      "title": "Registrar datas de início e término da leitura",
+      "group": "Acompanhamento da leitura",
+      "file": "08-registrar-datas-inicio-fim.md",
+      "dependsOn": [
+        "US-07"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Confirmar que `startDate`/`endDate` (`LocalDate`) estão presentes em `BookCreateRequest` e `BookUpdateRequest`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Criar exceção customizada `InvalidDateRangeException` (`common/InvalidDateRangeException.java`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar validação cruzada em `BookService` (nos métodos `create` e `update`): se `startDate` e `endDate` estiverem ambos presentes, `endDate` deve ser `>= startDate`; senão, lançar `InvalidDateRangeException`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Mapear `InvalidDateRangeException` → `400` no `GlobalExceptionHandler`, com mensagem explicando a violação.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH com `endDate` anterior a `startDate` retorna `400`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH com `startDate` e `endDate` válidos (fim >= início) retorna `200` e persiste ambas as datas.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH informando somente `startDate` (sem `endDate`) é aceito normalmente.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-09",
+      "title": "Dar nota (avaliação) a um livro",
+      "group": "Acompanhamento da leitura",
+      "file": "09-avaliar-livro.md",
+      "dependsOn": [
+        "US-07"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Adicionar `@Min(1)` e `@Max(5)` no campo `rating` de `BookCreateRequest` e `BookUpdateRequest`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Confirmar que `rating` nulo é aceito em ambos os DTOs (não obrigatório).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Confirmar que a coluna `rating` na tabela `books` permite `NULL` e tem `CHECK (rating IS NULL OR rating BETWEEN 1 AND 5)` (já previsto na migração `V2__create_books_table.sql` da US-04).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH definindo `rating = 5` retorna `200` com o valor persistido.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH definindo `rating = 6` retorna `400`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH definindo `rating = 0` retorna `400`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: criação sem informar `rating` retorna `201` com `rating = null`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-10",
+      "title": "Atualizar status/datas/nota sem recriar o livro",
+      "group": "Acompanhamento da leitura",
+      "file": "10-atualizar-livro-sem-recriar.md",
+      "dependsOn": [
+        "US-07",
+        "US-08",
+        "US-09"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Revisar `BookService.update` (implementado na US-07) para confirmar que o merge é genuinamente parcial: apenas os campos presentes no JSON do `BookUpdateRequest` sobrescrevem a entidade existente.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Garantir que `updatedAt` é atualizado em toda chamada de `update`, mesmo quando só um campo muda.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: sequência de 3 PATCHs (status → rating → datas) no mesmo livro resulta no estado final esperado, com todos os campos definidos anteriormente preservados.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH enviando somente `{\"rating\": 4}` não altera `title`/`author`/`status`/`coverUrl` previamente cadastrados.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: PATCH enviando um objeto vazio `{}` retorna `200` sem alterar nenhum campo.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-11",
+      "title": "Listar todos os livros do catálogo",
+      "group": "Consulta e busca",
+      "file": "11-listar-livros.md",
+      "dependsOn": [
+        "US-04"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Criar `BookSearchCriteria` (`book/BookSearchCriteria.java`) — inicialmente vazio, será preenchido pelas próximas histórias (US-12 a US-16).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `BookService.search(...)` usando `BookRepository.findAll(Specification, Pageable)`, sempre filtrando por `userId` do contexto de segurança.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `BookController.list` → `GET /api/v1/books`, aceitando `Pageable` (via `@PageableDefault(size = 20, sort = \"createdAt\", direction = DESC)`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Limitar `size` máximo a `100` (validação no controller ou configuração global do Spring Data).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: listagem sem parâmetros retorna todos os livros do usuário autenticado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: listagem não retorna livros cadastrados por outro usuário.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: paginação respeita `page`/`size` informados.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-12",
+      "title": "Buscar por título ou autor (texto livre)",
+      "group": "Consulta e busca",
+      "file": "12-buscar-por-titulo-autor.md",
+      "dependsOn": [
+        "US-11"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Adicionar campo `q` em `BookSearchCriteria`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `Specification<Book>` que aplica `LOWER(title) LIKE %termo% OR LOWER(author) LIKE %termo%` quando `q` estiver presente.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Expor query param `q` em `BookController.list`, repassando para `BookSearchCriteria`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: busca por termo presente no título retorna o livro esperado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: busca por termo presente apenas no autor também retorna o livro esperado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: busca case-insensitive (`q=duna` encontra livro cadastrado como `\"Duna\"`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-13",
+      "title": "Filtrar por status de leitura",
+      "group": "Consulta e busca",
+      "file": "13-filtrar-por-status.md",
+      "dependsOn": [
+        "US-11"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Adicionar campo `status` (`ReadingStatus`) em `BookSearchCriteria`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `Specification<Book>` adicional: `status = :status` quando informado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Expor query param `status` em `BookController.list`, com binding direto para o enum (Spring converte automaticamente; erro de conversão deve ser tratado).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Mapear erro de conversão de enum inválido (`MethodArgumentTypeMismatchException`) → `400` no `GlobalExceptionHandler`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: filtro `status=LIDO` retorna apenas livros com esse status.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: `status=VALOR_INVALIDO` retorna `400`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-14",
+      "title": "Filtrar por gênero/categoria",
+      "group": "Consulta e busca",
+      "file": "14-filtrar-por-genero.md",
+      "dependsOn": [
+        "US-11"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Adicionar campo `genre` em `BookSearchCriteria`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `Specification<Book>` adicional: `LOWER(genre) = LOWER(:genre)` quando informado.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Expor query param `genre` em `BookController.list`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: filtro `genre=Ficção científica` retorna apenas os livros daquele gênero.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: filtro case-insensitive (`genre=ficção científica` encontra livro cadastrado como `\"Ficção científica\"`).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-15",
+      "title": "Filtrar por faixa de avaliação",
+      "group": "Consulta e busca",
+      "file": "15-filtrar-por-faixa-avaliacao.md",
+      "dependsOn": [
+        "US-11"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Adicionar campos `minRating`/`maxRating` em `BookSearchCriteria`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `Specification<Book>` adicional: `rating >= :minRating` e/ou `rating <= :maxRating`, aplicados apenas quando informados.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Expor query params `minRating`/`maxRating` em `BookController.list`, com `@Min(1) @Max(5)` na validação do parâmetro.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: filtro `minRating=4` retorna apenas livros com nota ≥ 4.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: filtro `minRating=4&maxRating=5` retorna a faixa correta.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: `minRating=0` ou `maxRating=6` retorna `400`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-16",
+      "title": "Combinar múltiplos filtros",
+      "group": "Consulta e busca",
+      "file": "16-combinar-filtros.md",
+      "dependsOn": [
+        "US-12",
+        "US-13",
+        "US-14",
+        "US-15"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Compor todas as `Specification`s parciais (texto, status, gênero, rating) em `BookService.search(...)` usando `Specification.allOf(...)`/`.and(...)`, ignorando as que não foram informadas no `BookSearchCriteria`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Garantir que `BookController.list` constrói um único `BookSearchCriteria` a partir de todos os query params recebidos antes de chamar `BookService.search`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: combinação `genre=Ficção científica&status=LIDO` retorna apenas livros que satisfazem ambos.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: combinação de 4 filtros (`q`, `status`, `genre`, `minRating`) retorna o subconjunto correto.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: nenhum filtro informado se comporta como a listagem simples (US-11).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-17",
+      "title": "Lista vazia quando nenhum livro corresponde à busca",
+      "group": "Consulta e busca",
+      "file": "17-busca-sem-resultados.md",
+      "dependsOn": [
+        "US-11"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Confirmar que `BookService.search` retorna uma `Page` vazia (comportamento nativo do Spring Data) quando a `Specification` não encontra correspondência — não é necessário tratamento especial de código.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: `GET /api/v1/books?q=termo-inexistente` retorna `200` com `content: []` e `totalElements: 0`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: combinação de filtros válidos sem nenhum livro correspondente (ex: `status=ABANDONADO&minRating=5`) retorna `200` vazio, não erro.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "id": "US-18",
+      "title": "Remover livro",
+      "group": "Remoção",
+      "file": "18-remover-livro.md",
+      "dependsOn": [
+        "US-04",
+        "US-03"
+      ],
+      "status": "backlog",
+      "startedAt": null,
+      "completedAt": null,
+      "tasks": [
+        {
+          "label": "Implementar `BookService.delete(...)`: busca o livro garantindo `userId` igual ao do contexto autenticado (senão lança `NotFoundException`), remove via `BookRepository`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Implementar `BookController.delete` → `DELETE /api/v1/books/{id}`, retorna `204`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: DELETE de livro próprio retorna `204`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: GET subsequente ao mesmo id retorna `404` após a remoção.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: DELETE de livro de outro usuário retorna `404` (sem remover o recurso).",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        },
+        {
+          "label": "Teste de integração: DELETE de id inexistente retorna `404`.",
+          "status": "backlog",
+          "startedAt": null,
+          "completedAt": null
+        }
+      ]
+    }
+  ],
+  "bugs": []
+}
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var data = JSON.parse(document.getElementById("dashboard-data").textContent);
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // Converte `código` em <code>código</code> depois de escapar o resto.
+  function renderText(s) {
+    var parts = String(s).split(/`([^`]+)`/g);
+    var out = "";
+    for (var i = 0; i < parts.length; i++) {
+      out += (i % 2 === 1) ? "<code>" + esc(parts[i]) + "</code>" : esc(parts[i]);
+    }
+    return out;
+  }
+
+  function parseDate(s) { return s ? new Date(s) : null; }
+
+  function formatDuration(ms) {
+    if (ms == null || isNaN(ms) || ms < 0) return "—";
+    var min = Math.round(ms / 60000);
+    if (min < 60) return min + " min";
+    var hours = Math.floor(min / 60);
+    var remMin = min % 60;
+    if (hours < 24) return hours + "h" + (remMin ? " " + remMin + "min" : "");
+    var days = Math.floor(hours / 24);
+    var remHours = hours % 24;
+    return days + "d" + (remHours ? " " + remHours + "h" : "");
+  }
+
+  function formatDate(s) {
+    if (!s) return null;
+    var d = new Date(s);
+    return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function statusLabel(st) {
+    return { backlog: "Backlog", in_progress: "Em andamento", done: "Concluída" }[st] || st;
+  }
+
+  // ---- Agregações ----
+  var stories = data.stories || [];
+  var totalStories = stories.length;
+  var doneStories = stories.filter(function (s) { return s.status === "done"; }).length;
+  var inProgressStories = stories.filter(function (s) { return s.status === "in_progress"; }).length;
+
+  var allTasks = [];
+  stories.forEach(function (s) {
+    (s.tasks || []).forEach(function (t) { allTasks.push(t); });
+  });
+  var totalTasks = allTasks.length;
+  var doneTasks = allTasks.filter(function (t) { return t.status === "done"; }).length;
+  var inProgressTasks = allTasks.filter(function (t) { return t.status === "in_progress"; }).length;
+
+  function avgDurationMs(items) {
+    var durations = items
+      .filter(function (i) { return i.startedAt && i.completedAt; })
+      .map(function (i) { return parseDate(i.completedAt) - parseDate(i.startedAt); })
+      .filter(function (ms) { return !isNaN(ms) && ms >= 0; });
+    if (!durations.length) return null;
+    return durations.reduce(function (a, b) { return a + b; }, 0) / durations.length;
+  }
+
+  var avgTaskMs = avgDurationMs(allTasks);
+  var avgStoryMs = avgDurationMs(stories);
+
+  var bugs = data.bugs || [];
+  var openBugs = bugs.filter(function (b) { return b.status === "aberto"; }).length;
+  var fixedBugs = bugs.length - openBugs;
+
+  var byId = {};
+  stories.forEach(function (s) { byId[s.id] = s; });
+
+  function isReady(s) {
+    if (s.status !== "backlog") return false;
+    return (s.dependsOn || []).every(function (depId) {
+      var dep = byId[depId];
+      return !dep || dep.status === "done";
+    });
+  }
+  function isBlocked(s) {
+    if (s.status !== "backlog") return false;
+    return (s.dependsOn || []).some(function (depId) {
+      var dep = byId[depId];
+      return dep && dep.status !== "done";
+    });
+  }
+
+  var readyStories = stories.filter(isReady);
+  var blockedStories = stories.filter(isBlocked);
+  var inProgressStories_ = stories.filter(function (s) { return s.status === "in_progress"; });
+
+  // ---- Render: cards de resumo ----
+  var pctStories = totalStories ? Math.round((100 * doneStories) / totalStories) : 0;
+  var pctTasks = totalTasks ? Math.round((100 * doneTasks) / totalTasks) : 0;
+
+  var cards = [
+    { value: totalStories, label: "Histórias de usuário" },
+    { value: doneStories + " / " + totalStories, label: "Histórias concluídas (" + pctStories + "%)" },
+    { value: totalTasks, label: "Tarefas totais" },
+    { value: doneTasks + " / " + totalTasks, label: "Tarefas concluídas (" + pctTasks + "%)" },
+    { value: inProgressStories + " / " + inProgressTasks, label: "Histórias / tarefas em andamento" },
+    { value: formatDuration(avgTaskMs), label: "Tempo médio por tarefa" },
+    { value: formatDuration(avgStoryMs), label: "Tempo médio por história" },
+    { value: openBugs, label: "Bugs abertos" },
+    { value: fixedBugs, label: "Bugs corrigidos" }
+  ];
+  document.getElementById("summary-cards").innerHTML = cards.map(function (c) {
+    return '<div class="card"><div class="value">' + esc(c.value) + '</div><div class="label">' + esc(c.label) + '</div></div>';
+  }).join("");
+
+  // ---- Render: listas de atenção ----
+  function renderMiniList(container, list, formatter) {
+    if (!list.length) {
+      container.innerHTML = '<p class="empty">Nenhuma no momento.</p>';
+      return;
+    }
+    container.innerHTML = "<ul>" + list.map(formatter).join("") + "</ul>";
+  }
+  renderMiniList(document.getElementById("ready-list"), readyStories, function (s) {
+    return "<li>" + esc(s.id) + " — " + esc(s.title) + "</li>";
+  });
+  renderMiniList(document.getElementById("blocked-list"), blockedStories, function (s) {
+    return "<li>" + esc(s.id) + " — " + esc(s.title) + " (depende de " + esc((s.dependsOn || []).join(", ")) + ")</li>";
+  });
+  renderMiniList(document.getElementById("in-progress-list"), inProgressStories_, function (s) {
+    return "<li>" + esc(s.id) + " — " + esc(s.title) + "</li>";
+  });
+
+  // ---- Render: backlog agrupado ----
+  var groups = [];
+  stories.forEach(function (s) {
+    if (groups.indexOf(s.group) === -1) groups.push(s.group);
+  });
+
+  function taskItemHtml(t) {
+    var dates = "";
+    if (t.status === "done" && t.startedAt && t.completedAt) {
+      dates = formatDate(t.startedAt) + " → " + formatDate(t.completedAt) + " (" + formatDuration(parseDate(t.completedAt) - parseDate(t.startedAt)) + ")";
+    } else if (t.status === "in_progress" && t.startedAt) {
+      dates = "iniciada em " + formatDate(t.startedAt);
+    }
+    return '<li class="task-row" data-status="' + t.status + '" data-text="' + esc(t.label.toLowerCase()) + '">' +
+      '<span class="task-check ' + t.status + '"></span>' +
+      '<span class="task-text ' + (t.status === "done" ? "done" : "") + '">' + renderText(t.label) + "</span>" +
+      (dates ? '<span class="task-dates">' + esc(dates) + "</span>" : "") +
+      "</li>";
+  }
+
+  function storyHtml(s) {
+    var total = (s.tasks || []).length;
+    var done = (s.tasks || []).filter(function (t) { return t.status === "done"; }).length;
+    var pct = total ? Math.round((100 * done) / total) : 0;
+    var deps = (s.dependsOn || []).length
+      ? (s.dependsOn || []).map(function (d) { return esc(d) + (byId[d] ? " (" + statusLabel(byId[d].status) + ")" : ""); }).join(", ")
+      : "nenhuma";
+    var dates = "";
+    if (s.status === "done" && s.startedAt && s.completedAt) {
+      dates = " · " + formatDate(s.startedAt) + " → " + formatDate(s.completedAt) + " (" + formatDuration(parseDate(s.completedAt) - parseDate(s.startedAt)) + ")";
+    } else if (s.status === "in_progress" && s.startedAt) {
+      dates = " · iniciada em " + formatDate(s.startedAt);
+    }
+    return (
+      '<details class="story" data-status="' + s.status + '" data-text="' + esc((s.id + " " + s.title).toLowerCase()) + '">' +
+        "<summary>" +
+          '<span class="story-id">' + esc(s.id) + "</span>" +
+          '<span class="story-title">' + esc(s.title) + "</span>" +
+          '<span class="badge ' + s.status + '">' + statusLabel(s.status) + "</span>" +
+          '<span class="progress-wrap"><span class="progress-bar"><div style="width:' + pct + '%"></div></span>' +
+            '<span class="progress-count">' + done + "/" + total + "</span></span>" +
+        "</summary>" +
+        '<div class="story-body">' +
+          '<div class="story-meta">Arquivo: <code>docs/tasks/' + esc(s.file) + '</code> · Depende de: ' + deps + esc(dates) + "</div>" +
+          '<ul class="task-list">' + (s.tasks || []).map(taskItemHtml).join("") + "</ul>" +
+        "</div>" +
+      "</details>"
+    );
+  }
+
+  var backlogRoot = document.getElementById("backlog-root");
+  backlogRoot.innerHTML = groups.map(function (g) {
+    var storiesInGroup = stories.filter(function (s) { return s.group === g; });
+    return '<div class="group-heading">' + esc(g) + '</div>' + storiesInGroup.map(storyHtml).join("");
+  }).join("");
+
+  // ---- Render: bugs ----
+  var bugsRoot = document.getElementById("bugs-root");
+  if (!bugs.length) {
+    bugsRoot.innerHTML = '<p class="empty-state">Nenhum bug registrado até agora.</p>';
+  } else {
+    bugsRoot.innerHTML =
+      '<table class="bugs"><thead><tr>' +
+        "<th>ID</th><th>Título</th><th>Severidade</th><th>História relacionada</th>" +
+        "<th>Encontrado em</th><th>Status</th><th>Corrigido em</th>" +
+      "</tr></thead><tbody>" +
+      bugs.map(function (b) {
+        return "<tr>" +
+          "<td>" + esc(b.id) + "</td>" +
+          "<td>" + renderText(b.title) + "</td>" +
+          "<td>" + esc(b.severity) + "</td>" +
+          "<td>" + esc(b.relatedStory || "—") + "</td>" +
+          "<td>" + esc(formatDate(b.foundAt) || "—") + "</td>" +
+          "<td>" + esc(b.status) + "</td>" +
+          "<td>" + esc(formatDate(b.fixedAt) || "—") + "</td>" +
+        "</tr>";
+      }).join("") +
+      "</tbody></table>";
+  }
+
+  // ---- Filtro ----
+  var filterText = document.getElementById("filter-text");
+  var filterStatus = document.getElementById("filter-status");
+
+  function applyFilter() {
+    var text = filterText.value.trim().toLowerCase();
+    var status = filterStatus.value;
+    document.querySelectorAll(".story").forEach(function (storyEl) {
+      var storyMatchesStatus = status === "all" || storyEl.getAttribute("data-status") === status;
+      var taskRows = storyEl.querySelectorAll(".task-row");
+      var anyTaskMatches = false;
+      taskRows.forEach(function (row) {
+        var rowMatchesStatus = status === "all" || row.getAttribute("data-status") === status;
+        var rowMatchesText = !text || row.getAttribute("data-text").indexOf(text) !== -1;
+        var show = rowMatchesStatus && (!text || rowMatchesText);
+        row.style.display = show ? "" : "none";
+        if (show) anyTaskMatches = true;
+      });
+      var storyMatchesText = !text || storyEl.getAttribute("data-text").indexOf(text) !== -1;
+      var show = (storyMatchesStatus && storyMatchesText) || anyTaskMatches;
+      storyEl.style.display = show ? "" : "none";
+      if (show && (text || status !== "all")) storyEl.open = true;
+    });
+  }
+  filterText.addEventListener("input", applyFilter);
+  filterStatus.addEventListener("change", applyFilter);
+
+  // ---- Rodapé ----
+  document.getElementById("last-updated").textContent = formatDate(data.meta && data.meta.lastUpdated) || "—";
+})();
+</script>
+</body>
+</html>
