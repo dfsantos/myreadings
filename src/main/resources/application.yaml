@@ -1,3 +1,21 @@
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:1440}
+
 spring:
   application:
     name: myreadings
+  datasource:
+    url: jdbc:sqlite:${DB_PATH:./data/myreadings.db}
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  data:
+    web:
+      pageable:
+        max-page-size: 100

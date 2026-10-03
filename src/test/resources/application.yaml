@@ -1,0 +1,15 @@
+app:
+  jwt:
+    secret: teste-segredo-jwt-apenas-para-testes-de-integracao-nao-usar-em-producao
+    expiration-minutes: 1440
+
+spring:
+  datasource:
+    url: jdbc:sqlite:${java.io.tmpdir}/myreadings-smoke-test.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
