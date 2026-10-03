@@ -115,7 +115,7 @@ collection:
           mimeType: application/json
           text: |-
             {
-              "title": "",
+              "title": "O Guia do Mochileiro das Galáxias",
               "author": "Douglas Adams",
               "publisher": "Arqueiro",
               "publicationYear": 1979,
