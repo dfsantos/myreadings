@@ -33,6 +33,14 @@ Dependências a **adicionar** (ainda não estão no `build.gradle`):
 - `org.flywaydb:flyway-core` — versionamento de schema (ver seção 5)
 - `org.springdoc:springdoc-openapi-starter-webmvc-ui` (opcional, P1) — documentação OpenAPI/Swagger automática
 
+Na implementação da US-01, três dependências adicionais além das acima
+listadas se mostraram necessárias para a combinação Spring Boot 4.1.1 +
+Hibernate 7 + SQLite + Flyway + Bean Validation funcionar:
+`spring-boot-starter-validation` (Bean Validation nos DTOs, seção 6.3),
+`spring-boot-starter-flyway` (autoconfiguração do Flyway, complementa
+`flyway-core`) e `org.hibernate.orm:hibernate-community-dialects` em
+`runtimeOnly` (fornece o `SQLiteDialect`, não incluso no Hibernate core).
+
 ## 3. Estrutura de pacotes
 
 ```
@@ -83,6 +91,19 @@ dev.dfsantos.myreadings
 
 - `id` gerado como UUIDv4 na aplicação (`UUID.randomUUID()`), não auto-increment — evita expor contagem de usuários e facilita eventual migração/merge de bancos.
 - Senha armazenada com `BCryptPasswordEncoder` (custo padrão 10).
+- Mapeamento `Instant` (Java) ↔ `TEXT` ISO-8601 (coluna) feito via
+  `common/InstantStringConverter` (`AttributeConverter<Instant, String>`),
+  usado em `created_at` de `User` e reutilizável em `created_at`/`updated_at`
+  de `Book` — o mapeamento padrão do Hibernate para `Instant` espera uma
+  coluna `TIMESTAMP`, que o SQLite não tem.
+
+Nota de implementação (US-04): pelo mesmo motivo acima, `LocalDate` (Java)
+precisou de um conversor análogo, `common/LocalDateStringConverter`
+(`AttributeConverter<LocalDate, String>`) — o `LocalDateJavaType` do
+Hibernate 7 não faz unwrap direto para `String` ao persistir em coluna
+`TEXT` do SQLite, mesmo com `@JdbcTypeCode(SqlTypes.VARCHAR)` anotado
+diretamente no campo. Usado em `Book.startDate`/`Book.endDate` (seção
+4.2).
 
 ### 4.2 `books`
 
@@ -144,6 +165,12 @@ Prefixo de versão: `/api/v1`.
 - Senha mínima: 8 caracteres (validado via Bean Validation `@Size(min = 8)` no `RegisterRequest`).
 - Token: JWT HS256, claim `sub` = `user.id`, `exp` configurável (`app.jwt.expiration-minutes`, default `1440` = 24h). Sem refresh token na v1 — usuário loga de novo ao expirar (P1: refresh token se o atrito for real).
 
+Nota de implementação (US-02): `JwtTokenProvider` força `Jwts.SIG.HS256`
+explicitamente em `signWith(key, Jwts.SIG.HS256)`, em vez de deixar o
+jjwt 0.12.x inferir o algoritmo pelo tamanho da chave — sem isso, um
+`app.jwt.secret` de produção com mais de 32 bytes faria a biblioteca
+escolher HS384/HS512 silenciosamente.
+
 ### 6.2 Livros (`/api/v1/books`)
 
 Todas as rotas abaixo exigem header `Authorization: Bearer <token>` e operam apenas sobre livros do usuário do token.
@@ -169,6 +196,36 @@ Todas as rotas abaixo exigem header `Authorization: Bearer <token>` e operam ape
 
 Todos os filtros são combináveis com AND. Resposta usa o envelope padrão do Spring Data (`content`, `totalElements`, `totalPages`, `number`, `size`).
 
+Nota de implementação (US-11) — `BookSpecifications` como ponto único de
+predicados: `BookService.search` monta a `Specification<Book>` combinando
+predicados nomeados definidos em `book/BookSpecifications.java` (ex.:
+`hasUserId`), nunca inline no Service. A US-11 só implementa `hasUserId`
+(aplicado sempre, independente dos demais filtros); as US-12
+(`matchesSearchTerm`), US-13 (`hasStatus`) e US-14 (`matchesGenre`) já
+seguiram esse padrão. A US-15 (faixa de avaliação) implementou **dois**
+predicados separados — `hasRatingGreaterThanOrEqualTo(minRating)` e
+`hasRatingLessThanOrEqualTo(maxRating)` — em vez de um único
+`hasRatingBetween(min, max)` como este documento previa originalmente:
+cada ponta da faixa é combinada independentemente em `BookService.search`
+(`minRating`/`maxRating` podem chegar um sem o outro), mantendo a simetria
+com os demais predicados desta classe ("um campo/condição, combinado
+condicionalmente"). A US-16 (combinar múltiplos filtros) confirmou que
+`BookService.search` já compunha todos os predicados existentes via
+`.and(...)` condicional — nenhum ajuste de código foi necessário, só
+testes de integração comprovando o comportamento AND; esse continua sendo
+o único lugar para montar filtro de `Book`.
+
+Nota de implementação (US-11) — `size` máximo via propriedade global, não
+validação manual: o limite de `size=100` é configurado em
+`application.yaml` (`spring.data.web.pageable.max-page-size: 100`), não
+checado manualmente no Controller/Service. No Spring Boot 4.1.1 a classe
+que declara essa propriedade foi relocada de
+`org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties`
+para `org.springframework.boot.data.autoconfigure.web.DataWebProperties`
+(módulo `spring-boot-data-commons`, parte da modularização do Boot 4) — o
+prefixo YAML `spring.data.web.pageable.*` não muda. Vale a mesma atenção
+para qualquer outra propriedade `spring.data.web.*` configurada no futuro.
+
 **Exemplo de `BookCreateRequest`:**
 
 ```json
@@ -193,6 +250,42 @@ Todos os filtros são combináveis com AND. Resposta usa o envelope padrão do S
 - Validação cruzada `endDate >= startDate` feita manualmente no `BookService` (não é expressável de forma simples em Bean Validation sem um validador customizado) — lançar `400` com mensagem explícita se violada.
 - `coverUrl`, quando presente, validado apenas como string não vazia em P0; checagem de formato de URL (`http`/`https`) fica como P1, conforme priorizado na spec.
 
+Nota de implementação (US-15) — validação de `@RequestParam` individual
+(primeira vez no projeto validando query param fora de um DTO de corpo):
+Bean Validation (`@Min`/`@Max` etc.) não é aplicado a um campo de um
+record bindado implicitamente como parâmetro de método de controller (ex.:
+`BookSearchCriteria criteria` em `BookController.list`) — a anotação só
+tem efeito quando colocada diretamente em um parâmetro de método anotado
+individualmente (`@RequestParam`), e isso exige a classe do controller
+anotada com `@Validated`
+(`org.springframework.validation.annotation.Validated`). Por isso
+`minRating`/`maxRating` chegam como `@RequestParam(required = false)
+@Min(1) @Max(5) Integer` **separados** do bind implícito do record (que
+continua cuidando de `q`/`status`/`genre`), e dentro do método um
+`BookSearchCriteria` completo é reconstruído combinando os dois. A
+violação cai como `ConstraintViolationException`
+(`jakarta.validation`, lançada pelo `MethodValidationInterceptor` do
+Spring para parâmetro de método), não como `MethodArgumentNotValidException`
+(que só cobre `@Valid` em corpo de request) — exige handler próprio, ver
+seção 6.4. **Convenção a seguir em histórias futuras:** quando um campo de
+`BookSearchCriteria` precisar de validação Bean Validation própria (não
+apenas regra de negócio no Service), ele deve ser recebido como
+`@RequestParam` individual no controller — nunca como parte do record
+bindado implicitamente — e depois composto manualmente no
+`BookSearchCriteria` dentro do método.
+
+Nota de implementação (US-08) — validação cruzada sobre merge parcial: em
+`BookService.update`, `validateDateRange(startDate, endDate)` é chamado
+com o **estado final já mesclado** (valor do `BookUpdateRequest` quando
+presente, senão o valor já persistido em `existing`), nunca com os campos
+isolados do corpo do PATCH. Um PATCH que envia só `startDate` (ou só
+`endDate`) pode, combinado com o valor já persistido no outro campo,
+formar um intervalo inválido — validar apenas os campos recebidos no
+request deixaria esse caso passar. Esta é a convenção a seguir em
+qualquer validação cruzada futura que dependa de mais de um campo em um
+endpoint com atualização parcial (PATCH): sempre validar o objeto
+resultante do merge, não o delta do request.
+
 ### 6.4 Tratamento de erros
 
 Usar `ProblemDetail` (RFC 7807, nativo do Spring 6+) via `@RestControllerAdvice` central (`GlobalExceptionHandler`):
@@ -201,11 +294,89 @@ Usar `ProblemDetail` (RFC 7807, nativo do Spring 6+) via `@RestControllerAdvice`
 |---|---|---|
 | `MethodArgumentNotValidException` (Bean Validation) | 400 | `validation-error`, detalha campo(s) inválido(s) |
 | `NotFoundException` (livro não existe ou não pertence ao usuário) | 404 | `not-found` |
-| `DataIntegrityViolationException` (e-mail duplicado) | 409 | `conflict` |
+| `DataIntegrityViolationException` (backstop de condição de corrida no e-mail duplicado) | 409 | `conflict` |
+| `EmailAlreadyInUseException` (e-mail duplicado, caminho comum) | 409 | `conflict` |
 | `BadCredentialsException` / falha de JWT | 401 | `unauthorized` |
+| `MethodArgumentTypeMismatchException` (ex.: `status` fora do enum `ReadingStatus` em query param, US-13) | 400 | `validation-error` |
+| `ConstraintViolationException` (`@Min`/`@Max` em `@RequestParam` individual, ex.: `minRating`/`maxRating` fora de 1–5, US-15) | 400 | `validation-error` |
 | Exceção não mapeada | 500 | `internal-error` (sem detalhes internos no corpo) |
 
 Importante: `GET/PATCH/DELETE /books/{id}` de um livro de **outro** usuário retorna **404**, nunca 403 — não revela a existência do recurso para quem não é o dono (mesma regra já definida na spec).
+
+Nota de implementação (US-06) — formato do erro de validação de campo: o
+`ProblemDetail` retornado por `handleValidation`
+(`MethodArgumentNotValidException`) carrega uma extension property
+`errors`, um array de `{field, message}` (um item por campo inválido),
+via `problemDetail.setProperty("errors", List<FieldErrorDetail>)`. O
+Jackson 3 mescla extension properties no nível raiz do JSON, então o
+array fica acessível em `$.errors[].field`/`$.errors[].message`. O campo
+`detail` do `ProblemDetail` continua presente com um resumo textual
+(`"title: <msg>; author: <msg>"`), para consumidores que só leem
+`detail`. Este é o formato oficial para erros de validação de campo a
+partir de agora — próximas validações de Bean Validation (ex.: US-15,
+`minRating`/`maxRating`) devem seguir o mesmo padrão em vez de criar um
+DTO de erro customizado.
+
+Nota de implementação (US-07) — `status` fora do enum no `PATCH
+/books/{id}`: a desserialização de um valor de `status` que não existe em
+`ReadingStatus` falha antes do Bean Validation (não passa por
+`MethodArgumentNotValidException`), chegando ao
+`@RestControllerAdvice` como `HttpMessageNotReadableException` cuja causa
+é `InvalidFormatException`. Como o Spring Boot 4.1.1 roda sobre Jackson 3,
+essa classe é `tools.jackson.databind.exc.InvalidFormatException`, não a
+homônima de `com.fasterxml.jackson.databind.exc` — importar o pacote
+errado compila (ambas existem no classpath via outras libs) mas o
+`catch`/`instanceof` nunca casa. `handleMessageNotReadable` reaproveita o
+mesmo formato `errors: [{field, message}]` do handler de validação (seção
+6.4), listando os valores aceitos do enum na mensagem.
+
+Nota de implementação (US-13) — `status` fora do enum no `GET /books`
+(query param), caminho diferente do PATCH acima: o bind de query string
+para `BookSearchCriteria` passa pelo conversor de `Enum` do Spring MVC
+(`WebDataBinder`), não pelo Jackson, então o erro chega ao
+`@RestControllerAdvice` como `MethodArgumentTypeMismatchException`, nunca
+como `HttpMessageNotReadableException`/`InvalidFormatException`.
+`handleMethodArgumentTypeMismatch` é um handler separado em
+`GlobalExceptionHandler` — reaproveita o mesmo formato de mensagem (valor
+inválido + valores aceitos do enum) do handler do PATCH, mas não foi
+extraído um helper comum entre os dois (decisão deliberada, para não
+refatorar fora do escopo da US-13).
+
+Nota de implementação (US-15) — `ConstraintViolationException` de
+`@RequestParam` individual, caminho diferente do `MethodArgumentNotValidException`
+(Bean Validation em corpo `@Valid`) e do `MethodArgumentTypeMismatchException`
+(erro de conversão de tipo em query param, US-13): quando `@Min`/`@Max`
+são colocados diretamente em um parâmetro de método de controller
+anotado com `@RequestParam` (necessário para validar
+`minRating`/`maxRating`, já que não é possível anotar um campo de record
+bindado implicitamente — ver seção 6.3), uma violação é lançada pelo
+`MethodValidationInterceptor` do Spring como
+`jakarta.validation.ConstraintViolationException`, sem passar pelo
+`BindingResult` usado pelos outros dois handlers.
+`handleConstraintViolation` extrai o nome do campo do último nó de
+`violation.getPropertyPath()` e reaproveita o mesmo formato de resposta
+`errors: [{field, message}]` dos demais handlers de validação (seção
+6.4). Convenção a seguir para qualquer `@RequestParam` individual que
+precise de Bean Validation no futuro.
+
+Nota de implementação (US-07) — `Book` imutável: `BookService.update` não
+muta a entidade gerenciada; monta uma nova instância de `Book` via
+construtor completo, copiando do registro existente (buscado por
+`findByIdAndUserId`) todo campo não enviado no `BookUpdateRequest`, e
+delega a `bookRepository.save(...)`. Como o `id` é atribuído pela
+aplicação (`UUID.randomUUID()`, não `@GeneratedValue`), o Hibernate trata
+esse `save` como merge (insert se o id não existir, update se existir),
+então não é necessário buscar a entidade "anexada" à sessão para que a
+atualização seja persistida. Próximas histórias que alterem `Book`
+(US-08+) devem seguir o mesmo padrão em vez de adicionar setters.
+
+Nota de implementação (US-01): no dialeto `SQLiteDialect`
+(`hibernate-community-dialects`), a violação da constraint `UNIQUE` de
+`email` **não** é traduzida pelo Spring/Hibernate para
+`DataIntegrityViolationException` como ocorreria em outros dialetos — por
+isso `AuthService` checa explicitamente a unicidade do e-mail antes do
+`INSERT` e lança `EmailAlreadyInUseException`, mantendo o handler de
+`DataIntegrityViolationException` apenas como defesa em profundidade.
 
 ## 7. Segurança
 
@@ -213,6 +384,49 @@ Importante: `GET/PATCH/DELETE /books/{id}` de um livro de **outro** usuário ret
 - Rotas públicas: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `/actuator/health`. Todo o resto exige autenticação.
 - CORS: não configurado na v1 (sem frontend definido ainda); ao introduzir um frontend, adicionar `CorsConfigurationSource` restrito às origens conhecidas — **não** usar `*` em produção.
 - Segredo do JWT (`app.jwt.secret`) vem de variável de ambiente, nunca commitado; valor de desenvolvimento em `application-dev.yml` apenas para rodar localmente.
+
+Nota de implementação (US-01): a US-01 já criou um `SecurityFilterChain`
+mínimo (CSRF desabilitado, `/api/v1/auth/**` e `/actuator/health`
+liberados, resto exige autenticação) — sem ele o Spring Security padrão
+bloquearia com `401` o próprio endpoint de registro. A US-02 passou a
+emitir o token (`JwtTokenProvider`/`POST /auth/login`) sem alterar esse
+filter chain.
+
+Nota de implementação (US-03): `SessionCreationPolicy.STATELESS` e
+`JwtAuthenticationFilter` (`addFilterBefore`, antes de
+`UsernamePasswordAuthenticationFilter`) foram adicionados ao
+`SecurityFilterChain`. O filtro extrai `Authorization: Bearer <token>`,
+valida via `JwtTokenProvider.extractUserId` e, se válido, popula o
+`SecurityContext` com o `userId` (UUID) como principal; se ausente ou
+inválido/expirado, deixa o contexto vazio e segue a cadeia — quem decide a
+resposta de erro é o Spring Security, não o filtro.
+
+A resposta de erro para token ausente/inválido é escrita por um
+`AuthenticationEntryPoint` dedicado (`JwtAuthenticationEntryPoint`,
+registrado via `exceptionHandling().authenticationEntryPoint(...)`), não
+pelo `GlobalExceptionHandler`: como esse ponto de extensão roda antes do
+`DispatcherServlet`, um `@RestControllerAdvice` não teria chance de atuar.
+O `JwtAuthenticationEntryPoint` escreve o corpo `ProblemDetail`
+(Problem+JSON) manualmente para manter o mesmo formato usado pelas demais
+respostas de erro da API. O handler de `JwtException` no
+`GlobalExceptionHandler` (seção 6.4) permanece como defesa em profundidade
+para um cenário futuro em que algum controller/service faça parse de
+token diretamente (ex.: endpoint de refresh) — não é o caminho acionado
+pelo filtro atual, já que ele captura a exceção internamente.
+
+Para obter o `userId` autenticado em controllers/services foi criado
+`common/CurrentUser.id()` — um helper estático que lê
+`SecurityContextHolder`, em vez de um `@AuthenticationPrincipal`
+customizado. Decisão relevante para US-04 em diante: `BookService` deve
+chamar `CurrentUser.id()` diretamente; controllers não devem conter
+qualquer lógica de obtenção do usuário autenticado.
+
+O terceiro critério de aceite da US-03 (404 ao acessar/editar/remover
+livro de outro usuário) depende de existir ao menos um endpoint de CRUD
+de livro para ser observável em teste — fica registrado como pendência de
+verificação nas histórias de CRUD (US-04+), que devem usar
+`CurrentUser.id()` como fonte do `userId` em toda query/gravação do
+`BookRepository`.
 
 ## 8. Configuração (`application.yml`)
 
@@ -223,7 +437,7 @@ Chaves principais:
 app:
   jwt:
     secret: ${JWT_SECRET}
-    expiration-minutes: 1440
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:1440}
 spring:
   datasource:
     url: jdbc:sqlite:${DB_PATH:./data/myreadings.db}
@@ -233,6 +447,11 @@ spring:
   flyway:
     enabled: true
 ```
+
+Nota de implementação (US-02): `app.jwt.expiration-minutes` segue o mesmo
+padrão de override opcional por variável de ambiente já usado em
+`app.jwt.secret`/`spring.datasource.url` (`JWT_EXPIRATION_MINUTES`,
+default `1440`), em vez do valor fixo originalmente esboçado aqui.
 
 ## 9. Estratégia de testes
 
@@ -246,15 +465,25 @@ spring:
 | Requisito da spec (P0) | Componente técnico |
 |---|---|
 | Registro/login de usuário | `AuthController`, `AuthService`, `User`, `UserRepository` |
-| Isolamento por usuário (404 em recurso de terceiro) | `BookService#findOwnedOrThrow`, filtro `user_id` em toda query do `BookRepository` |
+| Isolamento por usuário (404 em recurso de terceiro) | `BookRepository#findByIdAndUserId(id, userId)` chamado inline em `BookService.update` (lança `NotFoundException` se vazio); na listagem, `BookSpecifications#hasUserId` aplicado sempre como base da `Specification` em `BookService#search` |
 | CRUD de livro com campos opcionais exceto título/autor | `Book`, `BookCreateRequest`/`BookUpdateRequest`, Bean Validation |
 | Status fechado em enum | `ReadingStatus`, `@Enumerated(STRING)` |
 | Listagem paginada | `BookController#list` + `Pageable` do Spring Data |
-| Busca por texto livre em título/autor | `BookRepository` com `@Query` `LOWER(title) LIKE ... OR LOWER(author) LIKE ...` |
+| Busca por texto livre em título/autor | `BookSpecifications#matchesSearchTerm` (`LOWER(title) LIKE ... OR LOWER(author) LIKE ...`), combinado em `BookService#search` via `Specification<Book>` |
 | Filtros por status/gênero/avaliação combináveis | `BookSearchCriteria` + `Specification<Book>` (Spring Data JPA Specifications) |
+| Remover livro do catálogo | `BookService#delete` (busca via `findByIdAndUserId`, `404` via `NotFoundException` se não encontrado/não é do usuário, remove via `BookRepository#delete`), `BookController#delete` (`DELETE /books/{id}` → `204`) |
+
+Nota de implementação (US-18): `GET /books/{id}` (busca de livro único por
+id, `BookService#findById` + `BookController#get`) já estava previsto na
+tabela de rotas da seção 6.2, mas não tinha história própria no backlog
+(US-01 a US-18) nem linha nesta tabela de rastreabilidade — foi
+implementado junto da US-18 porque o critério de aceite "GET subsequente
+ao id removido retorna 404" depende dele. Está confirmado implementado e
+testado (ver `docs/tasks/18-remover-livro.md`, seção Observações).
 
 ## 11. Riscos e trade-offs assumidos
 
 - **PATCH com semântica "omitido = não altera":** não há forma nativa de distinguir "campo enviado como `null`" de "campo omitido" em JSON sem usar wrapper (`Optional<T>`/`JsonNullable`). Decisão v1: tratar `null` recebido como "não alterar" — ou seja, **não é possível limpar um campo opcional via PATCH na v1** (ex: remover uma `coverUrl` já cadastrada exige recriar o registro ou uma decisão futura de usar `JsonNullable`). Documentado aqui para não ser descoberto como bug depois.
+- **`updatedAt` avança mesmo em PATCH sem nenhum campo de negócio alterado (US-10):** `BookService.update` chama `Instant.now()` incondicionalmente a cada execução, independente de o merge resultar em algum campo efetivamente diferente do valor já persistido. Isso inclui o caso-limite de um `PATCH /books/{id}` com corpo vazio `{}` (ou um corpo cujos campos coincidem com os já persistidos): a resposta é `200` sem nenhuma mudança de negócio, mas `updatedAt` ainda avança. Comportamento intencional (simplicidade: não há diff campo a campo antes de decidir se grava), não um bug — registrado aqui para não ser lido como regressão no futuro.
 - **Busca textual com `LIKE`:** sem índice full-text, `LIKE '%termo%'` força varredura completa da tabela por usuário. Aceitável no volume esperado (uso pessoal); revisitar com FTS5 se a base crescer muito (nenhuma evidência disso hoje).
 - **SQLite em produção:** um único arquivo, sem replicação. Aceitável para instância single-tenant/self-hosted; não serve para múltiplas instâncias da aplicação escrevendo concorrentemente no mesmo arquivo.

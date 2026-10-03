@@ -10,15 +10,24 @@
 
 ## Critérios de aceite
 
-- [ ] `POST /api/v1/books` sem `title` retorna `400` com mensagem indicando o campo `title`.
-- [ ] `POST /api/v1/books` sem `author` retorna `400` com mensagem indicando o campo `author`.
-- [ ] O corpo do erro segue o formato `ProblemDetail` (RFC 7807) definido no plano técnico.
+- [x] `POST /api/v1/books` sem `title` retorna `400` com mensagem indicando o campo `title`.
+- [x] `POST /api/v1/books` sem `author` retorna `400` com mensagem indicando o campo `author`.
+- [x] O corpo do erro segue o formato `ProblemDetail` (RFC 7807) definido no plano técnico.
 
 ## Tarefas
 
-- [ ] Adicionar `@NotBlank` em `title` e `author` no `BookCreateRequest`.
-- [ ] Criar `common/GlobalExceptionHandler.java` (`@RestControllerAdvice`) tratando `MethodArgumentNotValidException` → `ProblemDetail` `400`, listando cada campo inválido e sua mensagem.
-- [ ] Garantir que a mensagem de erro identifica claramente qual campo falhou (ex: `{"errors": [{"field": "title", "message": "não pode estar em branco"}]}`).
-- [ ] Teste de integração: POST sem `title` retorna `400` citando o campo `title`.
-- [ ] Teste de integração: POST sem `author` retorna `400` citando o campo `author`.
-- [ ] Teste de integração: POST sem `title` e sem `author` retorna `400` citando os dois campos.
+- [x] Adicionar `@NotBlank` em `title` e `author` no `BookCreateRequest`.
+- [x] Criar `common/GlobalExceptionHandler.java` (`@RestControllerAdvice`) tratando `MethodArgumentNotValidException` → `ProblemDetail` `400`, listando cada campo inválido e sua mensagem.
+- [x] Garantir que a mensagem de erro identifica claramente qual campo falhou (ex: `{"errors": [{"field": "title", "message": "não pode estar em branco"}]}`).
+- [x] Teste de integração: POST sem `title` retorna `400` citando o campo `title`.
+- [x] Teste de integração: POST sem `author` retorna `400` citando o campo `author`.
+- [x] Teste de integração: POST sem `title` e sem `author` retorna `400` citando os dois campos.
+
+## Observações
+
+- O `@NotBlank` em `title`/`author` já existia desde a US-04; nesta história só foi
+  confirmado que a validação dispara o fluxo de erro estruturado abaixo.
+- Formato final do erro de validação: `ProblemDetail` com extension property
+  `errors` (array de `{field, message}`), além de `detail` com o resumo textual
+  concatenado. Ver nota na seção 6.4 do plano técnico — este é o padrão a seguir
+  em validações futuras (ex.: US-15, `minRating`/`maxRating`).

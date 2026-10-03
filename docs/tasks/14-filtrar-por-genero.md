@@ -10,13 +10,13 @@
 
 ## Critérios de aceite
 
-- [ ] `GET /api/v1/books?genre=Ficção científica` retorna apenas livros daquele gênero.
-- [ ] O filtro é case-insensitive (gênero é texto livre, não enum — decisão registrada no plano técnico).
+- [x] `GET /api/v1/books?genre=Ficção científica` retorna apenas livros daquele gênero.
+- [x] O filtro é case-insensitive (gênero é texto livre, não enum — decisão registrada no plano técnico).
 
 ## Tarefas
 
-- [ ] Adicionar campo `genre` em `BookSearchCriteria`.
-- [ ] Implementar `Specification<Book>` adicional: `LOWER(genre) = LOWER(:genre)` quando informado.
-- [ ] Expor query param `genre` em `BookController.list`.
-- [ ] Teste de integração: filtro `genre=Ficção científica` retorna apenas os livros daquele gênero.
-- [ ] Teste de integração: filtro case-insensitive (`genre=ficção científica` encontra livro cadastrado como `"Ficção científica"`).
+- [x] Adicionar campo `genre` em `BookSearchCriteria`.
+- [x] Implementar `Specification<Book>` adicional: `LOWER(genre) = LOWER(:genre)` quando informado.
+- [x] Expor query param `genre` em `BookController.list`.
+- [x] Teste de integração: filtro `genre=Ficção científica` retorna apenas os livros daquele gênero.
+- [x] Teste de integração: filtro case-insensitive (`genre=ficção científica` encontra livro cadastrado como `"Ficção científica"`).

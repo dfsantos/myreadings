@@ -10,14 +10,14 @@
 
 ## Critérios de aceite
 
-- [ ] `GET /api/v1/books?status=LIDO` retorna apenas livros com esse status.
-- [ ] Valor de `status` fora do enum `ReadingStatus` retorna `400`.
+- [x] `GET /api/v1/books?status=LIDO` retorna apenas livros com esse status.
+- [x] Valor de `status` fora do enum `ReadingStatus` retorna `400`.
 
 ## Tarefas
 
-- [ ] Adicionar campo `status` (`ReadingStatus`) em `BookSearchCriteria`.
-- [ ] Implementar `Specification<Book>` adicional: `status = :status` quando informado.
-- [ ] Expor query param `status` em `BookController.list`, com binding direto para o enum (Spring converte automaticamente; erro de conversão deve ser tratado).
-- [ ] Mapear erro de conversão de enum inválido (`MethodArgumentTypeMismatchException`) → `400` no `GlobalExceptionHandler`.
-- [ ] Teste de integração: filtro `status=LIDO` retorna apenas livros com esse status.
-- [ ] Teste de integração: `status=VALOR_INVALIDO` retorna `400`.
+- [x] Adicionar campo `status` (`ReadingStatus`) em `BookSearchCriteria`.
+- [x] Implementar `Specification<Book>` adicional: `status = :status` quando informado.
+- [x] Expor query param `status` em `BookController.list`, com binding direto para o enum (Spring converte automaticamente; erro de conversão deve ser tratado).
+- [x] Mapear erro de conversão de enum inválido (`MethodArgumentTypeMismatchException`) → `400` no `GlobalExceptionHandler`.
+- [x] Teste de integração: filtro `status=LIDO` retorna apenas livros com esse status.
+- [x] Teste de integração: `status=VALOR_INVALIDO` retorna `400`.

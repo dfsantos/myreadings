@@ -10,12 +10,12 @@
 
 ## Critérios de aceite
 
-- [ ] `POST /api/v1/books` enviando apenas `title` e `author` retorna `201`.
-- [ ] Campos opcionais omitidos ficam `null` na resposta, exceto `status`, que assume o valor default `QUERO_LER`.
+- [x] `POST /api/v1/books` enviando apenas `title` e `author` retorna `201`.
+- [x] Campos opcionais omitidos ficam `null` na resposta, exceto `status`, que assume o valor default `QUERO_LER`.
 
 ## Tarefas
 
-- [ ] Confirmar que `BookCreateRequest` não possui `@NotNull`/`@NotBlank` em nenhum campo além de `title` e `author`.
-- [ ] Implementar valor default `status = QUERO_LER` quando omitido na criação (em `BookService.create` ou como default da entidade `Book`).
-- [ ] Teste de integração: criação enviando somente `title` e `author` retorna `201` com os demais campos `null` e `status = QUERO_LER`.
-- [ ] Teste de integração: criação informando `title`, `author` e `coverUrl` (sem os demais opcionais) retorna `201` com `coverUrl` persistida e o restante `null`.
+- [x] Confirmar que `BookCreateRequest` não possui `@NotNull`/`@NotBlank` em nenhum campo além de `title` e `author`.
+- [x] Implementar valor default `status = QUERO_LER` quando omitido na criação (em `BookService.create` ou como default da entidade `Book`).
+- [x] Teste de integração: criação enviando somente `title` e `author` retorna `201` com os demais campos `null` e `status = QUERO_LER`.
+- [x] Teste de integração: criação informando `title`, `author` e `coverUrl` (sem os demais opcionais) retorna `201` com `coverUrl` persistida e o restante `null`.

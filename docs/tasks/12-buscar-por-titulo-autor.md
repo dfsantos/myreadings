@@ -10,15 +10,22 @@
 
 ## Critérios de aceite
 
-- [ ] `GET /api/v1/books?q=termo` retorna livros cujo `title` OU `author` contenha o termo.
-- [ ] A busca é case-insensitive.
-- [ ] A busca é por substring (não exige correspondência exata).
+- [x] `GET /api/v1/books?q=termo` retorna livros cujo `title` OU `author` contenha o termo.
+- [x] A busca é case-insensitive.
+- [x] A busca é por substring (não exige correspondência exata).
 
 ## Tarefas
 
-- [ ] Adicionar campo `q` em `BookSearchCriteria`.
-- [ ] Implementar `Specification<Book>` que aplica `LOWER(title) LIKE %termo% OR LOWER(author) LIKE %termo%` quando `q` estiver presente.
-- [ ] Expor query param `q` em `BookController.list`, repassando para `BookSearchCriteria`.
-- [ ] Teste de integração: busca por termo presente no título retorna o livro esperado.
-- [ ] Teste de integração: busca por termo presente apenas no autor também retorna o livro esperado.
-- [ ] Teste de integração: busca case-insensitive (`q=duna` encontra livro cadastrado como `"Duna"`).
+- [x] Adicionar campo `q` em `BookSearchCriteria`.
+- [x] Implementar `Specification<Book>` que aplica `LOWER(title) LIKE %termo% OR LOWER(author) LIKE %termo%` quando `q` estiver presente.
+- [x] Expor query param `q` em `BookController.list`, repassando para `BookSearchCriteria`.
+- [x] Teste de integração: busca por termo presente no título retorna o livro esperado.
+- [x] Teste de integração: busca por termo presente apenas no autor também retorna o livro esperado.
+- [x] Teste de integração: busca case-insensitive (`q=duna` encontra livro cadastrado como `"Duna"`).
+
+## Observações
+
+- A implementação seguiu a arquitetura `Specification`/`BookSpecifications` (padrão
+  estabelecido pela US-11), em vez do `@Query` que a seção 10 do plano técnico
+  mencionava originalmente como mecanismo esperado. O plano técnico foi atualizado
+  para refletir o mecanismo real.
