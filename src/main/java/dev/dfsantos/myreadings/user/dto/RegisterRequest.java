@@ -1,4 +1,4 @@
-package dev.dfsantos.myreadings.auth.dto;
+package dev.dfsantos.myreadings.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

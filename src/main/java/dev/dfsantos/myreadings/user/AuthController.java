@@ -1,9 +1,9 @@
-package dev.dfsantos.myreadings.auth;
+package dev.dfsantos.myreadings.user;
 
-import dev.dfsantos.myreadings.auth.dto.LoginRequest;
-import dev.dfsantos.myreadings.auth.dto.RegisterRequest;
-import dev.dfsantos.myreadings.auth.dto.RegisterResponse;
-import dev.dfsantos.myreadings.auth.dto.TokenResponse;
+import dev.dfsantos.myreadings.user.dto.LoginRequest;
+import dev.dfsantos.myreadings.user.dto.RegisterRequest;
+import dev.dfsantos.myreadings.user.dto.RegisterResponse;
+import dev.dfsantos.myreadings.user.dto.TokenResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

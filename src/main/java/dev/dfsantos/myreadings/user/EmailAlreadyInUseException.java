@@ -1,4 +1,4 @@
-package dev.dfsantos.myreadings.auth;
+package dev.dfsantos.myreadings.user;
 
 /**
  * Lançada quando já existe um usuário cadastrado com o e-mail informado no registro.

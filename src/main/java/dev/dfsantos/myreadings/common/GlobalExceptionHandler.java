@@ -1,13 +1,11 @@
 package dev.dfsantos.myreadings.common;
 
-import dev.dfsantos.myreadings.auth.EmailAlreadyInUseException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,22 +24,6 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         problemDetail.setTitle("conflict");
         problemDetail.setDetail("Já existe um recurso cadastrado com esses dados");
-        return problemDetail;
-    }
-
-    @ExceptionHandler(EmailAlreadyInUseException.class)
-    public ProblemDetail handleEmailAlreadyInUse(EmailAlreadyInUseException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        problemDetail.setTitle("conflict");
-        problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-        problemDetail.setTitle("unauthorized");
-        problemDetail.setDetail(ex.getMessage());
         return problemDetail;
     }
 
