@@ -1,4 +1,4 @@
-package dev.dfsantos.myreadings.common;
+package dev.dfsantos.myreadings.book;
 
 /**
  * Lançada quando {@code endDate} e {@code startDate} estão ambos presentes no

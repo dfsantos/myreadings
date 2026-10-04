@@ -35,14 +35,6 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(InvalidDateRangeException.class)
-    public ProblemDetail handleInvalidDateRange(InvalidDateRangeException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("validation-error");
-        problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
-    }
-
     // Cobre o corpo da requisição malformado, incluindo o caso de um valor de enum
     // (ex.: ReadingStatus) fora dos valores aceitos — a desserialização falha antes de
     // chegar ao Bean Validation, então não passa por MethodArgumentNotValidException.
