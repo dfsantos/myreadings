@@ -111,6 +111,26 @@ execução de qualquer comando Gradle — não precisa de setup manual.
   o prefixo YAML `spring.data.web.pageable.*` não muda. Mesmo padrão das
   notas de Jackson 3/Hibernate 7 acima: vale atenção equivalente para
   qualquer outra propriedade `spring.data.web.*` configurada no futuro.
+- **Governança de arquitetura:** ArchUnit (`com.tngtech.archunit:archunit-junit5:1.5.0`,
+  `testImplementation`), integrado ao ciclo de testes mas, por ora, sem
+  nenhuma regra escrita — a adição foi deliberadamente limitada a
+  configurar a dependência para uma tarefa futura de escrever as regras de
+  camada/pacote já descritas em `.claude/rules/code-conventions.md` (ex.:
+  Controller sem lógica de negócio, `Service` como único chamador de
+  `CurrentUser.id()`, exceptions de módulo nascendo no próprio módulo). A
+  versão `archunit-junit5` integra nativamente com JUnit 5 por meio de um
+  `TestEngine` próprio (`com.tngtech.archunit.junit.internal.ArchUnitTestEngine`,
+  no artefato transitivo `archunit-junit5-engine`), registrado via Java
+  `ServiceLoader` em `META-INF/services/org.junit.platform.engine.TestEngine`
+  e descoberto automaticamente pelo JUnit Platform Launcher, assim como o
+  engine do Jupiter — então qualquer teste ArchUnit futuro em
+  `src/test/java` (classe anotada com `@AnalyzeClasses`) é descoberto e
+  executado automaticamente por `./gradlew test`/`build` como os demais,
+  sem task Gradle separada nem runner especial (diferente da versão antiga
+  baseada em runner JUnit4). Nenhuma mudança de configuração Gradle além da
+  dependência foi necessária: o projeto já roda
+  `tasks.named('test') { useJUnitPlatform() }` com
+  `testRuntimeOnly 'org.junit.platform:junit-platform-launcher'` presente.
 
 ## Convenções de pacote/estrutura
 
