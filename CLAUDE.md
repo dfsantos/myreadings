@@ -17,7 +17,41 @@ Quem orquestra a implementação de um backlog com múltiplas tarefas/histórias
 (ex.: delegando a agentes de código em sequência) deve acionar o
 `docs-plan-keeper` para atualizar `docs/tasks/` e `docs/dashboard.html` após
 **cada** tarefa concluída, não só ao final do backlog — o dashboard existe
-para acompanhamento em tempo real, não apenas registro histórico.
+para acompanhamento em tempo real, não apenas registro histórico. Este
+repositório define subagentes com fronteira de escopo rígida em
+`.claude/agents/`: `spring-boot-dev` é o único que deve alterar código em
+`src/`, dependências do `build.gradle` ou `application.yml`;
+`docs-plan-keeper` é o único que deve editar `docs/` ou `CLAUDE.md`;
+`pr-reviewer` aponta violações de convenção em um PR/branch mas não corrige
+código.
+
+## Comandos
+
+```bash
+# executar a aplicação (JWT_SECRET é obrigatório)
+export JWT_SECRET="um-segredo-bem-grande-e-aleatorio"
+./gradlew bootRun
+
+# rodar toda a suíte de testes
+./gradlew test
+
+# rodar uma única classe de teste
+./gradlew test --tests "dev.dfsantos.myreadings.book.BookControllerTest"
+
+# rodar um único método de teste
+./gradlew test --tests "dev.dfsantos.myreadings.book.BookControllerTest.createWithoutStatusDefaultsToQueroLer"
+
+# build completo (compila + testes)
+./gradlew build
+```
+
+Variáveis de ambiente: `JWT_SECRET` (obrigatória, assina os JWTs HS256),
+`JWT_EXPIRATION_MINUTES` (default `1440`), `DB_PATH` (default
+`./data/myreadings.db`).
+
+O hook de commit (`commit-msg`, valida Conventional Commits) é instalado
+automaticamente via `core.hooksPath` em `settings.gradle` na primeira
+execução de qualquer comando Gradle — não precisa de setup manual.
 
 ## Stack confirmada
 
@@ -394,3 +428,4 @@ módulo (`db/migration/user/`, `db/migration/book/`). **Nenhuma rota, status
 HTTP ou corpo de resposta da API mudou** — é reorganização pura de
 pacotes/arquivos, confirmada por `./gradlew build` verde a cada fase sem
 nenhuma asserção de teste alterada.
+</content>
