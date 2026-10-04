@@ -25,6 +25,30 @@ repositório define subagentes com fronteira de escopo rígida em
 `pr-reviewer` aponta violações de convenção em um PR/branch mas não corrige
 código.
 
+## Fluxo de desenvolvimento
+
+Toda funcionalidade/mudança/refatoração nova (ex.: o backlog original
+US-01 a US-18, ou a refatoração RF-01 a RF-06) segue o mesmo fluxo em 4
+estágios, com dois gates de aprovação explícitos do usuário:
+
+1. **Pedido** — o usuário descreve a funcionalidade/mudança desejada.
+2. **Spec** — é gerado um novo arquivo em `docs/specs/` (mesmo formato dos
+   já existentes). Implementação só começa **depois** que o usuário aprovar
+   a spec.
+3. **Plano técnico** — só depois da aprovação da spec, é criado o arquivo
+   correspondente em `docs/plans/`. Tasks só são criadas **depois** que o
+   usuário aprovar o plano técnico.
+4. **Tasks** — só depois da aprovação do plano, são criadas as tarefas em
+   `docs/tasks/` (um arquivo por história/tarefa, numeração sequencial
+   contínua com o backlog existente).
+
+Spec, plano técnico e tasks de uma mesma funcionalidade devem permanecer
+coerentes entre si — nenhum dos três pode divergir do que os outros dois
+descrevem. Durante a implementação (estágio delegado ao `spring-boot-dev`),
+o dashboard e as checkboxes de `docs/tasks/` são sincronizados tarefa a
+tarefa, não só ao final — ver o parágrafo acima sobre acionar o
+`docs-plan-keeper` após cada tarefa concluída.
+
 ## Comandos
 
 ```bash
