@@ -1,7 +1,6 @@
 package dev.dfsantos.myreadings.common;
 
 import dev.dfsantos.myreadings.auth.EmailAlreadyInUseException;
-import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -43,19 +42,6 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         problemDetail.setTitle("unauthorized");
         problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
-    }
-
-    // Backstop: a validação do token normalmente falha dentro do JwtAuthenticationFilter
-    // (antes do DispatcherServlet), onde este @RestControllerAdvice não atua — tratado
-    // lá via JwtAuthenticationEntryPoint. Este handler cobre o caso de algum controller/
-    // service futuro parsear um token diretamente (ex: endpoint de refresh) e deixar a
-    // exceção vazar.
-    @ExceptionHandler(JwtException.class)
-    public ProblemDetail handleJwtException(JwtException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-        problemDetail.setTitle("unauthorized");
-        problemDetail.setDetail("Token de autenticação ausente, inválido ou expirado");
         return problemDetail;
     }
 

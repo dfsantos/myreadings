@@ -1,4 +1,4 @@
-package dev.dfsantos.myreadings.auth;
+package dev.dfsantos.myreadings.security;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;

@@ -4,6 +4,7 @@ import dev.dfsantos.myreadings.auth.dto.LoginRequest;
 import dev.dfsantos.myreadings.auth.dto.RegisterRequest;
 import dev.dfsantos.myreadings.auth.dto.RegisterResponse;
 import dev.dfsantos.myreadings.auth.dto.TokenResponse;
+import dev.dfsantos.myreadings.security.JwtTokenProvider;
 import dev.dfsantos.myreadings.user.User;
 import dev.dfsantos.myreadings.user.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;

@@ -1,4 +1,4 @@
-package dev.dfsantos.myreadings.auth;
+package dev.dfsantos.myreadings.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
