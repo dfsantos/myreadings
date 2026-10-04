@@ -1,4 +1,4 @@
-# RF-06 — Regras ArchUnit para as convenções de código
+# RF-07 — Regras ArchUnit para as convenções de código
 
 **Tipo:** Governança de arquitetura/qualidade interna (sem mudança de
 comportamento da API) — não faz parte do backlog de histórias de usuário
@@ -17,7 +17,7 @@ escrita).
 
 Criar `src/test/java/dev/dfsantos/myreadings/ArchitectureTest.java`
 (`@AnalyzeClasses(packages = "dev.dfsantos.myreadings", importOptions =
-ImportOption.Predefined.DO_NOT_INCLUDE_TESTS.class)`) com 10 campos
+ImportOption.DoNotIncludeTests.class)`) com 10 campos
 `@ArchTest` cobrindo as 9 convenções de arquitetura já documentadas em
 `.claude/rules/code-conventions.md` (a convenção 6 — direção de
 dependência entre `user` e `book` — usa 2 campos simétricos em vez de um
@@ -32,84 +32,84 @@ As 9 convenções abaixo (numeração e formulação exata na seção 3.1 da spe
 e seção 4 do plano técnico) devem estar cobertas, cada uma por regra(s)
 ArchUnit que passam sem nenhuma mudança em `src/main`:
 
-- [ ] 1. Controller sem lógica de negócio / sem acesso a `Repository` —
+- [x] 1. Controller sem lógica de negócio / sem acesso a `Repository` —
       nenhuma classe `*Controller` depende de classe `*Repository`.
-- [ ] 2. Único chamador de `CurrentUser.id()` é a camada de Service —
+- [x] 2. Único chamador de `CurrentUser.id()` é a camada de Service —
       nenhuma classe `*Controller` depende de `security.CurrentUser`.
-- [ ] 3. Exceção de módulo de negócio nasce no próprio módulo — nenhuma
+- [x] 3. Exceção de módulo de negócio nasce no próprio módulo — nenhuma
       classe `*Exception` em `common` além das genéricas já conhecidas
       (hoje só `NotFoundException`).
-- [ ] 4. Exception handler por módulo — `UserExceptionHandler`/
+- [x] 4. Exception handler por módulo — `UserExceptionHandler`/
       `BookExceptionHandler` anotados com `@RestControllerAdvice` com
       `basePackages` apontando para o próprio módulo;
       `GlobalExceptionHandler`/`SecurityExceptionHandler` anotados com
       `@RestControllerAdvice` **sem** `basePackages`.
-- [ ] 5. Estrutura de pacotes fechada — toda classe de produção reside em
+- [x] 5. Estrutura de pacotes fechada — toda classe de produção reside em
       `config`, `security`, `user`(`.dto`), `book`(`.dto`), `common` ou no
       pacote raiz (só `MyreadingsApplication`); nenhum pacote `auth`
       remanescente.
-- [ ] 6. Direção de dependência entre módulos de negócio — `user` não
+- [x] 6. Direção de dependência entre módulos de negócio — `user` não
       depende de `book`, e `book` não depende de `user` (dois campos
       `@ArchTest` simétricos).
-- [ ] 7. `common` e `security` não dependem de módulo de negócio —
+- [x] 7. `common` e `security` não dependem de módulo de negócio —
       nenhuma classe em `common`/`security` depende de classe em
       `user`/`book`.
-- [ ] 8. Repository é `JpaRepository` — toda classe `*Repository` é uma
+- [x] 8. Repository é `JpaRepository` — toda classe `*Repository` é uma
       `interface` que estende `JpaRepository`.
-- [ ] 9. Nomenclatura de DTO — toda classe em `user.dto`/`book.dto`
+- [x] 9. Nomenclatura de DTO — toda classe em `user.dto`/`book.dto`
       termina em `Request` ou `Response`.
 
 Critérios adicionais de verificação:
 
-- [ ] `./gradlew test --tests "dev.dfsantos.myreadings.ArchitectureTest"`
+- [x] `./gradlew test --tests "dev.dfsantos.myreadings.ArchitectureTest"`
       passa com os 10 campos `@ArchTest` verdes (um por regra, lembrando
       que a convenção 6 soma dois campos).
-- [ ] `./gradlew build` completo passa em seguida, sem nenhuma asserção de
+- [x] `./gradlew build` completo passa em seguida, sem nenhuma asserção de
       teste existente alterada (confirma que a adição não teve efeito
       colateral no restante da suíte).
-- [ ] Nenhuma mudança em `src/main`, `build.gradle` ou `application.yaml`
+- [x] Nenhuma mudança em `src/main`, `build.gradle` ou `application.yaml`
       — tarefa puramente aditiva em `src/test/java`.
 
 ## Tarefas
 
-- [ ] Criar `src/test/java/dev/dfsantos/myreadings/ArchitectureTest.java`
+- [x] Criar `src/test/java/dev/dfsantos/myreadings/ArchitectureTest.java`
       com `@AnalyzeClasses(packages = "dev.dfsantos.myreadings",
-      importOptions = ImportOption.Predefined.DO_NOT_INCLUDE_TESTS.class)`,
+      importOptions = ImportOption.DoNotIncludeTests.class)`,
       classe package-private, campos `static final ArchRule` package-private
       (não `public`) — mesmo padrão de visibilidade de qualquer outra
       classe de teste do projeto.
-- [ ] Implementar o campo `controllersMustNotAccessRepositoriesDirectly`
+- [x] Implementar o campo `controllersMustNotAccessRepositoriesDirectly`
       (convenção 1), conforme plano técnico seção 4.1.
-- [ ] Implementar o campo `controllersMustNotDependOnCurrentUser`
+- [x] Implementar o campo `controllersMustNotDependOnCurrentUser`
       (convenção 2), conforme plano técnico seção 4.2.
-- [ ] Implementar o campo `onlyKnownGenericExceptionsMayLiveInCommon`
+- [x] Implementar o campo `onlyKnownGenericExceptionsMayLiveInCommon`
       (convenção 3), conforme plano técnico seção 4.3.
-- [ ] Implementar o campo
+- [x] Implementar o campo
       `exceptionHandlersMustBeScopedToTheirOwnModule` (convenção 4) junto
       do `ArchCondition<JavaClass>` customizado
       `beAnnotatedWithRestControllerAdviceScopedToOwnPackageWhenBusinessModule()`
       (método auxiliar `private static`, sem `@ArchTest` — não é um campo),
       conforme plano técnico seção 4.4.
-- [ ] Implementar o campo
+- [x] Implementar o campo
       `productionClassesMustResideInTheDefinedPackageStructure`
       (convenção 5), conforme plano técnico seção 4.5.
-- [ ] Implementar os dois campos simétricos
+- [x] Implementar os dois campos simétricos
       `userModuleMustNotDependOnBookModule` e
       `bookModuleMustNotDependOnUserModule` (convenção 6), conforme plano
       técnico seção 4.6.
-- [ ] Implementar o campo
+- [x] Implementar o campo
       `commonAndSecurityMustNotDependOnBusinessModules` (convenção 7),
       conforme plano técnico seção 4.7.
-- [ ] Implementar o campo `repositoriesMustBeJpaRepositoryInterfaces`
+- [x] Implementar o campo `repositoriesMustBeJpaRepositoryInterfaces`
       (convenção 8), conforme plano técnico seção 4.8.
-- [ ] Implementar o campo `dtosMustBeNamedRequestOrResponse` (convenção
+- [x] Implementar o campo `dtosMustBeNamedRequestOrResponse` (convenção
       9), conforme plano técnico seção 4.9.
-- [ ] Rodar
+- [x] Rodar
       `./gradlew test --tests "dev.dfsantos.myreadings.ArchitectureTest"`
       e confirmar os 10 campos verdes.
-- [ ] Rodar `./gradlew build` completo e confirmar suíte inteira verde,
+- [x] Rodar `./gradlew build` completo e confirmar suíte inteira verde,
       sem nenhuma asserção de teste existente alterada.
-- [ ] Commit único: `test: adiciona regras ArchUnit para as convenções de
+- [x] Commit único: `test: adiciona regras ArchUnit para as convenções de
       código documentadas` (tipo `test`, sem escopo entre parênteses — a
       mudança é transversal ao projeto, não pertence a um módulo de
       negócio nem à infraestrutura — ver plano técnico, seção 7, para a
@@ -136,3 +136,36 @@ Critérios adicionais de verificação:
   atualizados pelo `docs-plan-keeper` depois que o `spring-boot-dev`
   concluir a implementação e `./gradlew build` estiver verde — não fazem
   parte desta rodada de criação da task.
+
+**Pós-implementação (verificado pelo `docs-plan-keeper`):**
+
+- Implementação concluída pelo `spring-boot-dev` no commit `08b0f85`
+  (`test: adiciona regras ArchUnit para as convenções de código
+  documentadas`). Confirmado por leitura direta de
+  `src/test/java/dev/dfsantos/myreadings/ArchitectureTest.java`: os 10
+  campos `@ArchTest` existem com exatamente os nomes e a formulação
+  descritos no plano técnico (seções 4.1–4.9), cobrindo as 9 convenções.
+  O relatório do `spring-boot-dev` (`./gradlew test --tests
+  "dev.dfsantos.myreadings.ArchitectureTest"` com 10/10 verde, `./gradlew
+  build` completo com 76 testcases e 0 falhas) não pôde ser re-executado
+  nesta verificação porque o sandbox usado pelo `docs-plan-keeper` só tem
+  JDK 21 disponível (o projeto exige toolchain Java 25 via Gradle, sem
+  provisionamento automático configurado) — a verificação ficou restrita
+  à leitura do código-fonte e à árvore de trabalho limpa (`git status`
+  sem alterações pendentes sobre o commit já criado), não à re-execução
+  do build.
+- Divergência real encontrada durante a implementação: a referência
+  `ImportOption.Predefined.DO_NOT_INCLUDE_TESTS.class`, usada nas seções 1
+  e 6 do plano técnico e também citada na primeira tarefa desta checklist,
+  não compila na API real do ArchUnit 1.5.0 (`DO_NOT_INCLUDE_TESTS` é uma
+  constante de enum, não uma classe). A implementação usou corretamente
+  `ImportOption.DoNotIncludeTests.class`, e o plano técnico e esta task
+  foram corrigidos para refletir essa API (mesmo padrão de "documentar
+  divergência revelada pela implementação" já usado em US-18 do backlog
+  original).
+- **Numeração:** esta task foi rotulada "RF-07" (em vez de "RF-06") para
+  não colidir com [`docs/tasks/24-atualizar-documentacao-modularizacao.md`](24-atualizar-documentacao-modularizacao.md),
+  que já é "RF-06" dentro da numeração RF-01–RF-06 da refatoração de
+  modularização em vertical slices (spec/plano
+  `refatoracao-modularizacao-vertical-slice.md`) — são duas iniciativas
+  diferentes, só o prefixo "RF-" é compartilhado.

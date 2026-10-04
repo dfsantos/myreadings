@@ -329,7 +329,7 @@
 <script type="application/json" id="dashboard-data">
 {
   "meta": {
-    "lastUpdated": "2026-10-04T02:52:00-03:00",
+    "lastUpdated": "2026-10-04T04:01:59-03:00",
     "specFile": "specs/catalogo-de-leituras-backend.md",
     "planFile": "plans/catalogo-de-leituras-backend.md"
   },
@@ -1633,6 +1633,96 @@
           "status": "done",
           "startedAt": "2026-10-04T02:45:00-03:00",
           "completedAt": "2026-10-04T02:52:00-03:00"
+        }
+      ]
+    },
+    {
+      "id": "US-25",
+      "title": "Regras ArchUnit para as convenções de código",
+      "group": "Governança de arquitetura",
+      "file": "25-regras-archunit-convencoes.md",
+      "dependsOn": [],
+      "status": "done",
+      "startedAt": "2026-10-04T04:00:08-03:00",
+      "completedAt": "2026-10-04T04:00:08-03:00",
+      "tasks": [
+        {
+          "label": "Criar `src/test/java/dev/dfsantos/myreadings/ArchitectureTest.java` com `@AnalyzeClasses(packages = \"dev.dfsantos.myreadings\", importOptions = ImportOption.DoNotIncludeTests.class)`, classe package-private, campos `static final ArchRule` package-private.",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `controllersMustNotAccessRepositoriesDirectly` (convenção 1).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `controllersMustNotDependOnCurrentUser` (convenção 2).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `onlyKnownGenericExceptionsMayLiveInCommon` (convenção 3).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `exceptionHandlersMustBeScopedToTheirOwnModule` (convenção 4), com o `ArchCondition<JavaClass>` customizado `beAnnotatedWithRestControllerAdviceScopedToOwnPackageWhenBusinessModule()`.",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `productionClassesMustResideInTheDefinedPackageStructure` (convenção 5).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar os dois campos simétricos `userModuleMustNotDependOnBookModule` e `bookModuleMustNotDependOnUserModule` (convenção 6).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `commonAndSecurityMustNotDependOnBusinessModules` (convenção 7).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `repositoriesMustBeJpaRepositoryInterfaces` (convenção 8).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Implementar o campo `dtosMustBeNamedRequestOrResponse` (convenção 9).",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Rodar `./gradlew test --tests \"dev.dfsantos.myreadings.ArchitectureTest\"` e confirmar os 10 campos verdes.",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Rodar `./gradlew build` completo e confirmar suíte inteira verde, sem nenhuma asserção de teste existente alterada.",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
+        },
+        {
+          "label": "Commit único: `test: adiciona regras ArchUnit para as convenções de código documentadas`.",
+          "status": "done",
+          "startedAt": "2026-10-04T04:00:08-03:00",
+          "completedAt": "2026-10-04T04:00:08-03:00"
         }
       ]
     }

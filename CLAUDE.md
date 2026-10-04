@@ -112,13 +112,27 @@ execução de qualquer comando Gradle — não precisa de setup manual.
   notas de Jackson 3/Hibernate 7 acima: vale atenção equivalente para
   qualquer outra propriedade `spring.data.web.*` configurada no futuro.
 - **Governança de arquitetura:** ArchUnit (`com.tngtech.archunit:archunit-junit5:1.5.0`,
-  `testImplementation`), integrado ao ciclo de testes mas, por ora, sem
-  nenhuma regra escrita — a adição foi deliberadamente limitada a
-  configurar a dependência para uma tarefa futura de escrever as regras de
-  camada/pacote já descritas em `.claude/rules/code-conventions.md` (ex.:
-  Controller sem lógica de negócio, `Service` como único chamador de
-  `CurrentUser.id()`, exceptions de módulo nascendo no próprio módulo). A
-  versão `archunit-junit5` integra nativamente com JUnit 5 por meio de um
+  `testImplementation`), integrado ao ciclo de testes. A tarefa futura
+  mencionada anteriormente nesta nota — escrever as regras de camada/pacote
+  já descritas em `.claude/rules/code-conventions.md` — foi concluída:
+  [`docs/tasks/25-regras-archunit-convencoes.md`](docs/tasks/25-regras-archunit-convencoes.md)
+  (spec [`docs/specs/archunit-regras-convencoes.md`](docs/specs/archunit-regras-convencoes.md),
+  plano técnico [`docs/plans/archunit-regras-convencoes.md`](docs/plans/archunit-regras-convencoes.md))
+  adicionou `src/test/java/dev/dfsantos/myreadings/ArchitectureTest.java`
+  com 10 campos `@ArchTest` cobrindo as 9 convenções (Controller sem acesso
+  a `Repository`, `Service` como único chamador de `CurrentUser.id()`,
+  exceptions de módulo nascendo no próprio módulo, exception handler
+  escopado por módulo, estrutura de pacotes fechada, direção de
+  dependência `user`↔`book`, `common`/`security` sem dependência de módulo
+  de negócio, `Repository` como `JpaRepository`, nomenclatura de DTO) —
+  nenhuma violação real foi encontrada, confirmando que o código já seguia
+  as convenções documentadas. **Nota sobre numeração:** esta task foi
+  rotulada "RF-07" (em vez de "RF-06") para não colidir com
+  [`docs/tasks/24-atualizar-documentacao-modularizacao.md`](docs/tasks/24-atualizar-documentacao-modularizacao.md),
+  que já é "RF-06" dentro da numeração RF-01–RF-06 da refatoração de
+  modularização (ver seção "Refatoração técnica" abaixo) — são duas
+  iniciativas diferentes, não uma continuação da mesma série.
+  A versão `archunit-junit5` integra nativamente com JUnit 5 por meio de um
   `TestEngine` próprio (`com.tngtech.archunit.junit.internal.ArchUnitTestEngine`,
   no artefato transitivo `archunit-junit5-engine`), registrado via Java
   `ServiceLoader` em `META-INF/services/org.junit.platform.engine.TestEngine`
@@ -456,7 +470,7 @@ Todo o backlog de histórias de usuário (US-01 a US-18) está implementado —
 ver [`docs/dashboard.html`](docs/dashboard.html) para o progresso agregado
 e [`docs/tasks/`](docs/tasks/) para o detalhe de cada uma.
 
-## Refatoração técnica — modularização em vertical slices (RF-01 a RF-05)
+## Refatoração técnica — modularização em vertical slices (RF-01 a RF-06)
 
 Concluída a refatoração de modularização em vertical slices descrita na
 [spec](docs/specs/refatoracao-modularizacao-vertical-slice.md) e no

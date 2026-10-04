@@ -24,7 +24,18 @@ que a spec não cobre e que decido aqui:
 
 | Ponto técnico | Decisão | Justificativa |
 |---|---|---|
-| `@AnalyzeClasses` deve importar só `src/main` ou também `src/test`? | **Só `src/main`**, via `importOptions = ImportOption.Predefined.DO_NOT_INCLUDE_TESTS.class` | A spec enuncia repetidamente "classe de produção" (seção 4, critério de aceite; seção 3.1, item 5). Sem esse filtro, o `@AnalyzeClasses(packages = "dev.dfsantos.myreadings")` padrão importa **todas** as classes do pacote no classpath de teste, incluindo as próprias classes de teste (`BookControllerTest`, `AuthControllerTest`, `ArchitectureTest` etc.) — hoje elas já residem nos pacotes permitidos pela regra 5 (nenhuma violação), mas deixar o filtro de fora tornaria a regra 5 e a regra de dependência entre módulos (regras 6/7) frágeis a qualquer classe de apoio de teste futura (ex.: um pacote `testsupport` ou uma fixture em `book.dto` só para teste) que não tem nenhuma relação com a convenção de arquitetura de produção que estamos verificando. `ImportOption.Predefined.DO_NOT_INCLUDE_TESTS` é a opção pronta da própria biblioteca (reconhece o padrão de diretório de output do Gradle, `build/classes/java/test`), confirmada via `javap` em `com.tngtech.archunit.core.importer.ImportOption$Predefined`. |
+| `@AnalyzeClasses` deve importar só `src/main` ou também `src/test`? | **Só `src/main`**, via `importOptions = ImportOption.DoNotIncludeTests.class` | A spec enuncia repetidamente "classe de produção" (seção 4, critério de aceite; seção 3.1, item 5). Sem esse filtro, o `@AnalyzeClasses(packages = "dev.dfsantos.myreadings")` padrão importa **todas** as classes do pacote no classpath de teste, incluindo as próprias classes de teste (`BookControllerTest`, `AuthControllerTest`, `ArchitectureTest` etc.) — hoje elas já residem nos pacotes permitidos pela regra 5 (nenhuma violação), mas deixar o filtro de fora tornaria a regra 5 e a regra de dependência entre módulos (regras 6/7) frágeis a qualquer classe de apoio de teste futura (ex.: um pacote `testsupport` ou uma fixture em `book.dto` só para teste) que não tem nenhuma relação com a convenção de arquitetura de produção que estamos verificando. `ImportOption.DoNotIncludeTests` é a opção pronta da própria biblioteca (reconhece o padrão de diretório de output do Gradle, `build/classes/java/test`). |
+
+> **Correção pós-implementação (RF-07, `docs/tasks/25-regras-archunit-convencoes.md`):**
+> a referência original acima — `ImportOption.Predefined.DO_NOT_INCLUDE_TESTS.class`
+> — estava incorreta: `DO_NOT_INCLUDE_TESTS` é uma constante do enum
+> `ImportOption.Predefined`, não uma classe, e não compila como valor de
+> `importOptions()` (que exige `Class<? extends ImportOption>[]`). A API
+> real do ArchUnit 1.5.0, confirmada via `javap` no jar real durante a
+> implementação, é a classe separada
+> `com.tngtech.archunit.core.importer.ImportOption.DoNotIncludeTests` —
+> já corrigida no texto e no bloco de código abaixo, e é o que está em
+> uso em `src/test/java/dev/dfsantos/myreadings/ArchitectureTest.java`.
 
 Confirmado por `javap` que `@AnalyzeClasses` aceita
 `importOptions()` como `Class<? extends ImportOption>[]`, então a anotação
@@ -33,7 +44,7 @@ final da classe de teste é:
 ```java
 @AnalyzeClasses(
         packages = "dev.dfsantos.myreadings",
-        importOptions = ImportOption.Predefined.DO_NOT_INCLUDE_TESTS.class
+        importOptions = ImportOption.DoNotIncludeTests.class
 )
 ```
 
@@ -360,7 +371,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(
         packages = "dev.dfsantos.myreadings",
-        importOptions = ImportOption.Predefined.DO_NOT_INCLUDE_TESTS.class
+        importOptions = ImportOption.DoNotIncludeTests.class
 )
 class ArchitectureTest {
 
