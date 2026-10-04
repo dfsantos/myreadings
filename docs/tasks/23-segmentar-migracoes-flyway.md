@@ -16,24 +16,24 @@ parte do backlog de histórias de usuário (US-01 a US-18, já concluído).
 
 ## Critérios de aceite
 
-- [ ] `./gradlew build` passa sem nenhuma asserção de teste alterada — os
+- [x] `./gradlew build` passa sem nenhuma asserção de teste alterada — os
       testes de integração existentes já sobem o schema via Flyway em
       SQLite temporário a cada execução e falham imediatamente se alguma
       tabela não existir.
-- [ ] Conteúdo de `V1__create_users_table.sql` e
+- [x] Conteúdo de `V1__create_users_table.sql` e
       `V2__create_books_table.sql` permanece byte-a-byte idêntico — só o
       caminho do arquivo muda.
-- [ ] `flyway_schema_history` continua sendo uma única tabela por banco
+- [x] `flyway_schema_history` continua sendo uma única tabela por banco
       (comportamento padrão do Flyway, não requer nenhuma configuração
       adicional).
 
 ## Tarefas
 
-- [ ] Criar `src/main/resources/db/migration/user/` e mover
+- [x] Criar `src/main/resources/db/migration/user/` e mover
       `V1__create_users_table.sql` para lá.
-- [ ] Criar `src/main/resources/db/migration/book/` e mover
+- [x] Criar `src/main/resources/db/migration/book/` e mover
       `V2__create_books_table.sql` para lá.
-- [ ] Adicionar em `application.yaml`, dentro da chave `spring.flyway` já
+- [x] Adicionar em `application.yaml`, dentro da chave `spring.flyway` já
       existente:
       ```yaml
       spring:
@@ -41,7 +41,7 @@ parte do backlog de histórias de usuário (US-01 a US-18, já concluído).
           enabled: true
           locations: classpath:db/migration/user,classpath:db/migration/book
       ```
-- [ ] Rodar `./gradlew build` e confirmar suíte completa verde.
+- [x] Rodar `./gradlew build` e confirmar suíte completa verde.
 
 ## Observações
 

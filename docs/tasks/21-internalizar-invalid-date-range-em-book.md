@@ -15,26 +15,26 @@ parte do backlog de histórias de usuário (US-01 a US-18, já concluído).
 
 ## Critérios de aceite
 
-- [ ] `./gradlew build` passa sem nenhuma asserção de teste alterada.
-- [ ] Nenhum status HTTP ou corpo de resposta muda para `POST`/`PATCH
+- [x] `./gradlew build` passa sem nenhuma asserção de teste alterada.
+- [x] Nenhum status HTTP ou corpo de resposta muda para `POST`/`PATCH
       /api/v1/books` com datas inválidas — continua `400`/`validation-error`.
-- [ ] `common/GlobalExceptionHandler.java` não contém mais
+- [x] `common/GlobalExceptionHandler.java` não contém mais
       `handleInvalidDateRange`.
 
 ## Tarefas
 
-- [ ] Mover `common/InvalidDateRangeException.java` →
+- [x] Mover `common/InvalidDateRangeException.java` →
       `book/InvalidDateRangeException.java` (só `package`).
-- [ ] Criar `book/BookExceptionHandler.java`
+- [x] Criar `book/BookExceptionHandler.java`
       (`@RestControllerAdvice(basePackages = "dev.dfsantos.myreadings.book")`)
       com o método `handleInvalidDateRange` extraído de
       `common/GlobalExceptionHandler.java` (corpo idêntico ao plano
       técnico, seção 4.3).
-- [ ] Remover `handleInvalidDateRange` e o import de
+- [x] Remover `handleInvalidDateRange` e o import de
       `InvalidDateRangeException` de `common/GlobalExceptionHandler.java`.
-- [ ] Confirmar que `book/BookService.java` não precisa de nenhuma mudança
+- [x] Confirmar que `book/BookService.java` não precisa de nenhuma mudança
       de import (a exceção passa a estar no mesmo pacote `book`).
-- [ ] Rodar `./gradlew build` e confirmar suíte completa verde.
+- [x] Rodar `./gradlew build` e confirmar suíte completa verde.
 
 ## Observações
 

@@ -17,23 +17,23 @@ parte do backlog de histórias de usuário (US-01 a US-18, já concluído).
 
 ## Critérios de aceite
 
-- [ ] `common/GlobalExceptionHandler.java` contém **apenas**:
+- [x] `common/GlobalExceptionHandler.java` contém **apenas**:
       `handleDataIntegrityViolation`, `handleNotFound`,
       `handleMessageNotReadable` (+ `buildInvalidFormatDetail`),
       `handleMethodArgumentTypeMismatch`, `handleConstraintViolation`
       (+ `lastPathNode`), `handleValidation`, e o record privado
       `FieldErrorDetail`.
-- [ ] Nenhum import não utilizado no arquivo (em particular:
+- [x] Nenhum import não utilizado no arquivo (em particular:
       `EmailAlreadyInUseException`, `JwtException`, `BadCredentialsException`,
       `InvalidDateRangeException` não devem mais aparecer).
-- [ ] `./gradlew build` passa sem nenhuma asserção de teste alterada.
+- [x] `./gradlew build` passa sem nenhuma asserção de teste alterada.
 
 ## Tarefas
 
-- [ ] Revisar `common/GlobalExceptionHandler.java` linha a linha contra a
+- [x] Revisar `common/GlobalExceptionHandler.java` linha a linha contra a
       lista de métodos esperada acima.
-- [ ] Remover qualquer import não utilizado.
-- [ ] Rodar `./gradlew build` e confirmar suíte completa verde.
+- [x] Remover qualquer import não utilizado.
+- [x] Rodar `./gradlew build` e confirmar suíte completa verde.
 
 ## Observações
 
@@ -41,3 +41,8 @@ parte do backlog de histórias de usuário (US-01 a US-18, já concluído).
   `auth.EmailAlreadyInUseException` em `common` — a violação de fronteira
   mais grave identificada — só desaparece de fato quando esta tarefa é
   confirmada.
+- Confirmado por verificação pura do código em `common/GlobalExceptionHandler.java`
+  (sem commit próprio): RF-01/02/03 já deixaram o arquivo exatamente no
+  estado esperado, sem nenhum import morto remanescente. Não há commit
+  dedicado a esta tarefa; o estado verificado corresponde ao conteúdo do
+  arquivo após o commit `6769af0` (RF-03).

@@ -15,38 +15,38 @@ parte do backlog de histórias de usuário (US-01 a US-18, já concluído).
 
 ## Critérios de aceite
 
-- [ ] `./gradlew build` passa sem nenhuma asserção de teste alterada.
-- [ ] Nenhuma rota, status HTTP ou corpo de resposta muda — `/api/v1/auth/**`
+- [x] `./gradlew build` passa sem nenhuma asserção de teste alterada.
+- [x] Nenhuma rota, status HTTP ou corpo de resposta muda — `/api/v1/auth/**`
       continua respondendo exatamente igual.
-- [ ] O pacote `auth/` deixa de existir (vazio e removido).
-- [ ] `common/GlobalExceptionHandler.java` não contém mais
+- [x] O pacote `auth/` deixa de existir (vazio e removido).
+- [x] `common/GlobalExceptionHandler.java` não contém mais
       `handleEmailAlreadyInUse` nem `handleBadCredentials`.
 
 ## Tarefas
 
-- [ ] Mover `auth/AuthController.java` → `user/AuthController.java` (só
+- [x] Mover `auth/AuthController.java` → `user/AuthController.java` (só
       `package`; nome da classe e da rota `/api/v1/auth/**` inalterados).
-- [ ] Mover `auth/AuthService.java` → `user/AuthService.java` (`package`;
+- [x] Mover `auth/AuthService.java` → `user/AuthService.java` (`package`;
       os imports de `User`/`UserRepository` deixam de ser necessários,
       mesmo pacote agora; o import de `JwtTokenProvider` já deve apontar
       para `dev.dfsantos.myreadings.security`, feito na RF-01).
-- [ ] Mover `auth/EmailAlreadyInUseException.java` →
+- [x] Mover `auth/EmailAlreadyInUseException.java` →
       `user/EmailAlreadyInUseException.java` (só `package`).
-- [ ] Mover `auth/dto/LoginRequest.java`, `RegisterRequest.java`,
+- [x] Mover `auth/dto/LoginRequest.java`, `RegisterRequest.java`,
       `RegisterResponse.java`, `TokenResponse.java` → `user/dto/` (só
       `package` em cada um).
-- [ ] Criar `user/UserExceptionHandler.java`
+- [x] Criar `user/UserExceptionHandler.java`
       (`@RestControllerAdvice(basePackages = "dev.dfsantos.myreadings.user")`)
       com os métodos `handleEmailAlreadyInUse` e `handleBadCredentials`
       extraídos de `common/GlobalExceptionHandler.java` (corpo idêntico ao
       plano técnico, seção 4.2).
-- [ ] Remover `handleEmailAlreadyInUse`, `handleBadCredentials` e os
+- [x] Remover `handleEmailAlreadyInUse`, `handleBadCredentials` e os
       imports de `EmailAlreadyInUseException`/`BadCredentialsException` de
       `common/GlobalExceptionHandler.java`.
-- [ ] Remover o pacote `auth/` (deve estar vazio após os passos acima).
-- [ ] Mover `src/test/.../auth/AuthControllerTest.java` →
+- [x] Remover o pacote `auth/` (deve estar vazio após os passos acima).
+- [x] Mover `src/test/.../auth/AuthControllerTest.java` →
       `src/test/.../user/AuthControllerTest.java` (só `package`).
-- [ ] Rodar `./gradlew build` e confirmar suíte completa verde.
+- [x] Rodar `./gradlew build` e confirmar suíte completa verde.
 
 ## Observações
 

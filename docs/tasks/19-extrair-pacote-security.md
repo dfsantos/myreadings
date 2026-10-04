@@ -18,47 +18,47 @@ parte do backlog de histórias de usuário (US-01 a US-18, já concluído).
 
 ## Critérios de aceite
 
-- [ ] `./gradlew build` passa (compilação + suíte de testes completa) sem
+- [x] `./gradlew build` passa (compilação + suíte de testes completa) sem
       nenhuma asserção de teste alterada.
-- [ ] Nenhuma rota, status HTTP ou corpo de resposta muda — confirmado
+- [x] Nenhuma rota, status HTTP ou corpo de resposta muda — confirmado
       pelos testes de integração já existentes (`AuthControllerTest`,
       `JwtAuthenticationFilterTest`, `JwtAuthenticationIntegrationTest`).
-- [ ] Pacote `dev.dfsantos.myreadings.security` existe com exatamente:
+- [x] Pacote `dev.dfsantos.myreadings.security` existe com exatamente:
       `CurrentUser`, `JwtTokenProvider`, `JwtAuthenticationFilter`,
       `JwtAuthenticationEntryPoint`, `SecurityExceptionHandler`.
-- [ ] `common/GlobalExceptionHandler.java` não importa mais `JwtException`
+- [x] `common/GlobalExceptionHandler.java` não importa mais `JwtException`
       nem contém `handleJwtException`.
 
 ## Tarefas
 
-- [ ] Criar o pacote `security/` e mover `common/CurrentUser.java` para lá
+- [x] Criar o pacote `security/` e mover `common/CurrentUser.java` para lá
       (só `package`, nenhuma outra mudança).
-- [ ] Mover `auth/JwtTokenProvider.java` → `security/JwtTokenProvider.java`
+- [x] Mover `auth/JwtTokenProvider.java` → `security/JwtTokenProvider.java`
       (só `package`).
-- [ ] Mover `auth/JwtAuthenticationFilter.java` →
+- [x] Mover `auth/JwtAuthenticationFilter.java` →
       `security/JwtAuthenticationFilter.java` (só `package`; o import de
       `JwtTokenProvider` deixa de ser necessário, mesmo pacote agora).
-- [ ] Mover `auth/JwtAuthenticationEntryPoint.java` →
+- [x] Mover `auth/JwtAuthenticationEntryPoint.java` →
       `security/JwtAuthenticationEntryPoint.java` (só `package`).
-- [ ] Criar `security/SecurityExceptionHandler.java`
+- [x] Criar `security/SecurityExceptionHandler.java`
       (`@RestControllerAdvice`, **sem** `basePackages` — é infraestrutura
       cross-cutting, não lógica de um módulo) com o método
       `handleJwtException` extraído de `common/GlobalExceptionHandler.java`
       (corpo idêntico ao plano técnico, seção 4.1).
-- [ ] Remover `handleJwtException` e o import de
+- [x] Remover `handleJwtException` e o import de
       `io.jsonwebtoken.JwtException` de `common/GlobalExceptionHandler.java`.
-- [ ] Atualizar os imports em `config/SecurityConfig.java` para
+- [x] Atualizar os imports em `config/SecurityConfig.java` para
       `dev.dfsantos.myreadings.security.JwtAuthenticationFilter` e
       `dev.dfsantos.myreadings.security.JwtAuthenticationEntryPoint`.
-- [ ] Atualizar o import de `JwtTokenProvider` em `auth/AuthService.java`
+- [x] Atualizar o import de `JwtTokenProvider` em `auth/AuthService.java`
       para `dev.dfsantos.myreadings.security.JwtTokenProvider`.
-- [ ] Atualizar todo uso de `common.CurrentUser` (hoje em
+- [x] Atualizar todo uso de `common.CurrentUser` (hoje em
       `book/BookService.java`) para `dev.dfsantos.myreadings.security.CurrentUser`.
-- [ ] Mover `src/test/.../auth/JwtAuthenticationFilterTest.java` →
+- [x] Mover `src/test/.../auth/JwtAuthenticationFilterTest.java` →
       `src/test/.../security/JwtAuthenticationFilterTest.java` (só `package`).
-- [ ] Mover `src/test/.../auth/JwtAuthenticationIntegrationTest.java` →
+- [x] Mover `src/test/.../auth/JwtAuthenticationIntegrationTest.java` →
       `src/test/.../security/JwtAuthenticationIntegrationTest.java` (só `package`).
-- [ ] Rodar `./gradlew build` e confirmar suíte completa verde.
+- [x] Rodar `./gradlew build` e confirmar suíte completa verde.
 
 ## Observações
 

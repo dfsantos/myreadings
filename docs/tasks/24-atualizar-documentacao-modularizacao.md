@@ -19,28 +19,28 @@ de histórias de usuário (US-01 a US-18, já concluído).
 
 ## Critérios de aceite
 
-- [ ] A árvore de pacotes em `CLAUDE.md` (seção "Convenções de
+- [x] A árvore de pacotes em `CLAUDE.md` (seção "Convenções de
       pacote/estrutura") reflete exatamente o código após RF-01 a RF-05.
-- [ ] A árvore de pacotes em `.claude/rules/code-conventions.md` (seção
+- [x] A árvore de pacotes em `.claude/rules/code-conventions.md` (seção
       "Estrutura de pacotes") reflete o mesmo.
-- [ ] `.claude/rules/code-conventions.md` registra a convenção de
+- [x] `.claude/rules/code-conventions.md` registra a convenção de
       exception handler por módulo (cada módulo de negócio trata suas
       próprias exceções via `@RestControllerAdvice(basePackages = ...)`;
       `common` cobre só erros genéricos de framework; `security` é
       infraestrutura compartilhada e seu advice não é escopado por
       `basePackages`).
-- [ ] `CLAUDE.md` registra, na seção "Estado atual" (ou equivalente), que
+- [x] `CLAUDE.md` registra, na seção "Estado atual" (ou equivalente), que
       a refatoração de modularização (RF-01 a RF-05) foi concluída, com
       link para a spec e o plano técnico.
 
 ## Tarefas
 
-- [ ] Atualizar a árvore de pacotes em `CLAUDE.md`.
-- [ ] Atualizar a árvore de pacotes em `.claude/rules/code-conventions.md`.
-- [ ] Adicionar a convenção de exception handler por módulo em
+- [x] Atualizar a árvore de pacotes em `CLAUDE.md`.
+- [x] Atualizar a árvore de pacotes em `.claude/rules/code-conventions.md`.
+- [x] Adicionar a convenção de exception handler por módulo em
       `.claude/rules/code-conventions.md`.
-- [ ] Adicionar nota de conclusão da refatoração em `CLAUDE.md`.
-- [ ] Marcar as checkboxes de RF-01 a RF-06 neste diretório
+- [x] Adicionar nota de conclusão da refatoração em `CLAUDE.md`.
+- [x] Marcar as checkboxes de RF-01 a RF-06 neste diretório
       (`docs/tasks/19-*.md` a `docs/tasks/24-*.md`) conforme forem
       verificadas no código, seguindo o mesmo padrão usado em US-01 a
       US-18.
