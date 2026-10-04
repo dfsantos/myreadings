@@ -329,7 +329,7 @@
 <script type="application/json" id="dashboard-data">
 {
   "meta": {
-    "lastUpdated": "2026-10-03T02:46:33-03:00",
+    "lastUpdated": "2026-10-04T02:52:00-03:00",
     "specFile": "specs/catalogo-de-leituras-backend.md",
     "planFile": "plans/catalogo-de-leituras-backend.md"
   },
@@ -1319,6 +1319,320 @@
           "status": "done",
           "startedAt": "2026-10-03T02:45:00-03:00",
           "completedAt": "2026-10-03T02:46:33-03:00"
+        }
+      ]
+    },
+    {
+      "id": "US-19",
+      "title": "Extrair pacote security",
+      "group": "Refatoração — modularização em vertical slices",
+      "file": "19-extrair-pacote-security.md",
+      "dependsOn": [],
+      "status": "done",
+      "startedAt": "2026-10-04T02:35:00-03:00",
+      "completedAt": "2026-10-04T02:37:34-03:00",
+      "tasks": [
+        {
+          "label": "Criar o pacote `security/` e mover `common/CurrentUser.java` para lá (só `package`, nenhuma outra mudança).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Mover `auth/JwtTokenProvider.java` → `security/JwtTokenProvider.java` (só `package`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Mover `auth/JwtAuthenticationFilter.java` → `security/JwtAuthenticationFilter.java` (só `package`; o import de `JwtTokenProvider` deixa de ser necessário, mesmo pacote agora).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Mover `auth/JwtAuthenticationEntryPoint.java` → `security/JwtAuthenticationEntryPoint.java` (só `package`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Criar `security/SecurityExceptionHandler.java` (`@RestControllerAdvice`, sem `basePackages` — é infraestrutura cross-cutting, não lógica de um módulo) com o método `handleJwtException` extraído de `common/GlobalExceptionHandler.java` (corpo idêntico ao plano técnico, seção 4.1).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Remover `handleJwtException` e o import de `io.jsonwebtoken.JwtException` de `common/GlobalExceptionHandler.java`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Atualizar os imports em `config/SecurityConfig.java` para `dev.dfsantos.myreadings.security.JwtAuthenticationFilter` e `dev.dfsantos.myreadings.security.JwtAuthenticationEntryPoint`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Atualizar o import de `JwtTokenProvider` em `auth/AuthService.java` para `dev.dfsantos.myreadings.security.JwtTokenProvider`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Atualizar todo uso de `common.CurrentUser` (hoje em `book/BookService.java`) para `dev.dfsantos.myreadings.security.CurrentUser`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Mover `src/test/.../auth/JwtAuthenticationFilterTest.java` → `src/test/.../security/JwtAuthenticationFilterTest.java` (só `package`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Mover `src/test/.../auth/JwtAuthenticationIntegrationTest.java` → `src/test/.../security/JwtAuthenticationIntegrationTest.java` (só `package`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        },
+        {
+          "label": "Rodar `./gradlew build` e confirmar suíte completa verde.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:35:00-03:00",
+          "completedAt": "2026-10-04T02:37:34-03:00"
+        }
+      ]
+    },
+    {
+      "id": "US-20",
+      "title": "Fundir pacote auth em user",
+      "group": "Refatoração — modularização em vertical slices",
+      "file": "20-fundir-auth-em-user.md",
+      "dependsOn": [
+        "US-19"
+      ],
+      "status": "done",
+      "startedAt": "2026-10-04T02:37:34-03:00",
+      "completedAt": "2026-10-04T02:39:33-03:00",
+      "tasks": [
+        {
+          "label": "Mover `auth/AuthController.java` → `user/AuthController.java` (só `package`; nome da classe e da rota `/api/v1/auth/**` inalterados).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Mover `auth/AuthService.java` → `user/AuthService.java` (`package`; os imports de `User`/`UserRepository` deixam de ser necessários, mesmo pacote agora; o import de `JwtTokenProvider` já deve apontar para `dev.dfsantos.myreadings.security`, feito na RF-01).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Mover `auth/EmailAlreadyInUseException.java` → `user/EmailAlreadyInUseException.java` (só `package`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Mover `auth/dto/LoginRequest.java`, `RegisterRequest.java`, `RegisterResponse.java`, `TokenResponse.java` → `user/dto/` (só `package` em cada um).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Criar `user/UserExceptionHandler.java` (`@RestControllerAdvice(basePackages = \"dev.dfsantos.myreadings.user\")`) com os métodos `handleEmailAlreadyInUse` e `handleBadCredentials` extraídos de `common/GlobalExceptionHandler.java` (corpo idêntico ao plano técnico, seção 4.2).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Remover `handleEmailAlreadyInUse`, `handleBadCredentials` e os imports de `EmailAlreadyInUseException`/`BadCredentialsException` de `common/GlobalExceptionHandler.java`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Remover o pacote `auth/` (deve estar vazio após os passos acima).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Mover `src/test/.../auth/AuthControllerTest.java` → `src/test/.../user/AuthControllerTest.java` (só `package`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        },
+        {
+          "label": "Rodar `./gradlew build` e confirmar suíte completa verde.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:37:34-03:00",
+          "completedAt": "2026-10-04T02:39:33-03:00"
+        }
+      ]
+    },
+    {
+      "id": "US-21",
+      "title": "Internalizar InvalidDateRangeException em book",
+      "group": "Refatoração — modularização em vertical slices",
+      "file": "21-internalizar-invalid-date-range-em-book.md",
+      "dependsOn": [
+        "US-20"
+      ],
+      "status": "done",
+      "startedAt": "2026-10-04T02:39:33-03:00",
+      "completedAt": "2026-10-04T02:40:58-03:00",
+      "tasks": [
+        {
+          "label": "Mover `common/InvalidDateRangeException.java` → `book/InvalidDateRangeException.java` (só `package`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:39:33-03:00",
+          "completedAt": "2026-10-04T02:40:58-03:00"
+        },
+        {
+          "label": "Criar `book/BookExceptionHandler.java` (`@RestControllerAdvice(basePackages = \"dev.dfsantos.myreadings.book\")`) com o método `handleInvalidDateRange` extraído de `common/GlobalExceptionHandler.java` (corpo idêntico ao plano técnico, seção 4.3).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:39:33-03:00",
+          "completedAt": "2026-10-04T02:40:58-03:00"
+        },
+        {
+          "label": "Remover `handleInvalidDateRange` e o import de `InvalidDateRangeException` de `common/GlobalExceptionHandler.java`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:39:33-03:00",
+          "completedAt": "2026-10-04T02:40:58-03:00"
+        },
+        {
+          "label": "Confirmar que `book/BookService.java` não precisa de nenhuma mudança de import (a exceção passa a estar no mesmo pacote `book`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:39:33-03:00",
+          "completedAt": "2026-10-04T02:40:58-03:00"
+        },
+        {
+          "label": "Rodar `./gradlew build` e confirmar suíte completa verde.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:39:33-03:00",
+          "completedAt": "2026-10-04T02:40:58-03:00"
+        }
+      ]
+    },
+    {
+      "id": "US-22",
+      "title": "Reduzir GlobalExceptionHandler ao conjunto genérico",
+      "group": "Refatoração — modularização em vertical slices",
+      "file": "22-reduzir-global-exception-handler.md",
+      "dependsOn": [
+        "US-19",
+        "US-20",
+        "US-21"
+      ],
+      "status": "done",
+      "startedAt": "2026-10-04T02:40:58-03:00",
+      "completedAt": "2026-10-04T02:41:40-03:00",
+      "tasks": [
+        {
+          "label": "Revisar `common/GlobalExceptionHandler.java` linha a linha contra a lista de métodos esperada (`handleDataIntegrityViolation`, `handleNotFound`, `handleMessageNotReadable` + `buildInvalidFormatDetail`, `handleMethodArgumentTypeMismatch`, `handleConstraintViolation` + `lastPathNode`, `handleValidation`, `FieldErrorDetail`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:40:58-03:00",
+          "completedAt": "2026-10-04T02:41:40-03:00"
+        },
+        {
+          "label": "Remover qualquer import não utilizado (em particular: `EmailAlreadyInUseException`, `JwtException`, `BadCredentialsException`, `InvalidDateRangeException`).",
+          "status": "done",
+          "startedAt": "2026-10-04T02:40:58-03:00",
+          "completedAt": "2026-10-04T02:41:40-03:00"
+        },
+        {
+          "label": "Rodar `./gradlew build` e confirmar suíte completa verde.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:40:58-03:00",
+          "completedAt": "2026-10-04T02:41:40-03:00"
+        }
+      ]
+    },
+    {
+      "id": "US-23",
+      "title": "Segmentar migrações Flyway por módulo",
+      "group": "Refatoração — modularização em vertical slices",
+      "file": "23-segmentar-migracoes-flyway.md",
+      "dependsOn": [],
+      "status": "done",
+      "startedAt": "2026-10-04T02:41:40-03:00",
+      "completedAt": "2026-10-04T02:43:44-03:00",
+      "tasks": [
+        {
+          "label": "Criar `src/main/resources/db/migration/user/` e mover `V1__create_users_table.sql` para lá.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:41:40-03:00",
+          "completedAt": "2026-10-04T02:43:44-03:00"
+        },
+        {
+          "label": "Criar `src/main/resources/db/migration/book/` e mover `V2__create_books_table.sql` para lá.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:41:40-03:00",
+          "completedAt": "2026-10-04T02:43:44-03:00"
+        },
+        {
+          "label": "Adicionar em `application.yaml`, dentro da chave `spring.flyway` já existente, `enabled: true` e `locations: classpath:db/migration/user,classpath:db/migration/book`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:41:40-03:00",
+          "completedAt": "2026-10-04T02:43:44-03:00"
+        },
+        {
+          "label": "Rodar `./gradlew build` e confirmar suíte completa verde.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:41:40-03:00",
+          "completedAt": "2026-10-04T02:43:44-03:00"
+        }
+      ]
+    },
+    {
+      "id": "US-24",
+      "title": "Atualizar documentação de convenção de pacotes",
+      "group": "Refatoração — modularização em vertical slices",
+      "file": "24-atualizar-documentacao-modularizacao.md",
+      "dependsOn": [
+        "US-19",
+        "US-20",
+        "US-21",
+        "US-22",
+        "US-23"
+      ],
+      "status": "done",
+      "startedAt": "2026-10-04T02:45:00-03:00",
+      "completedAt": "2026-10-04T02:52:00-03:00",
+      "tasks": [
+        {
+          "label": "Atualizar a árvore de pacotes em `CLAUDE.md`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:45:00-03:00",
+          "completedAt": "2026-10-04T02:52:00-03:00"
+        },
+        {
+          "label": "Atualizar a árvore de pacotes em `.claude/rules/code-conventions.md`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:45:00-03:00",
+          "completedAt": "2026-10-04T02:52:00-03:00"
+        },
+        {
+          "label": "Adicionar a convenção de exception handler por módulo em `.claude/rules/code-conventions.md`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:45:00-03:00",
+          "completedAt": "2026-10-04T02:52:00-03:00"
+        },
+        {
+          "label": "Adicionar nota de conclusão da refatoração em `CLAUDE.md`.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:45:00-03:00",
+          "completedAt": "2026-10-04T02:52:00-03:00"
+        },
+        {
+          "label": "Marcar as checkboxes de RF-01 a RF-06 em `docs/tasks/19-*.md` a `docs/tasks/24-*.md` conforme forem verificadas no código, seguindo o mesmo padrão usado em US-01 a US-18.",
+          "status": "done",
+          "startedAt": "2026-10-04T02:45:00-03:00",
+          "completedAt": "2026-10-04T02:52:00-03:00"
         }
       ]
     }

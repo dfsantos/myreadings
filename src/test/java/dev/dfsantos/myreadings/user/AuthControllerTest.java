@@ -1,4 +1,4 @@
-package dev.dfsantos.myreadings.auth;
+package dev.dfsantos.myreadings.user;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

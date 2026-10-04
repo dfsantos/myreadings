@@ -1,14 +1,11 @@
 package dev.dfsantos.myreadings.common;
 
-import dev.dfsantos.myreadings.auth.EmailAlreadyInUseException;
-import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -30,47 +27,10 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(EmailAlreadyInUseException.class)
-    public ProblemDetail handleEmailAlreadyInUse(EmailAlreadyInUseException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        problemDetail.setTitle("conflict");
-        problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ProblemDetail handleBadCredentials(BadCredentialsException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-        problemDetail.setTitle("unauthorized");
-        problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
-    }
-
-    // Backstop: a validação do token normalmente falha dentro do JwtAuthenticationFilter
-    // (antes do DispatcherServlet), onde este @RestControllerAdvice não atua — tratado
-    // lá via JwtAuthenticationEntryPoint. Este handler cobre o caso de algum controller/
-    // service futuro parsear um token diretamente (ex: endpoint de refresh) e deixar a
-    // exceção vazar.
-    @ExceptionHandler(JwtException.class)
-    public ProblemDetail handleJwtException(JwtException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
-        problemDetail.setTitle("unauthorized");
-        problemDetail.setDetail("Token de autenticação ausente, inválido ou expirado");
-        return problemDetail;
-    }
-
     @ExceptionHandler(NotFoundException.class)
     public ProblemDetail handleNotFound(NotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problemDetail.setTitle("not-found");
-        problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(InvalidDateRangeException.class)
-    public ProblemDetail handleInvalidDateRange(InvalidDateRangeException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("validation-error");
         problemDetail.setDetail(ex.getMessage());
         return problemDetail;
     }

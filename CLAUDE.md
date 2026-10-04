@@ -7,10 +7,51 @@ avaliação, busca/filtros), isolada da lista de outros usuários.
 Documentação completa:
 - Spec/PRD: [`docs/specs/catalogo-de-leituras-backend.md`](docs/specs/catalogo-de-leituras-backend.md)
 - Plano técnico: [`docs/plans/catalogo-de-leituras-backend.md`](docs/plans/catalogo-de-leituras-backend.md)
+- Spec/plano da refatoração de modularização: [`docs/specs/refatoracao-modularizacao-vertical-slice.md`](docs/specs/refatoracao-modularizacao-vertical-slice.md) / [`docs/plans/refatoracao-modularizacao-vertical-slice.md`](docs/plans/refatoracao-modularizacao-vertical-slice.md)
 - Tasks por história de usuário: [`docs/tasks/`](docs/tasks/)
 - Dashboard de acompanhamento: [`docs/dashboard.html`](docs/dashboard.html)
 - Convenção de commits: [`.claude/rules/commit-conventions.md`](.claude/rules/commit-conventions.md)
 - Convenção de código: [`.claude/rules/code-conventions.md`](.claude/rules/code-conventions.md)
+
+Quem orquestra a implementação de um backlog com múltiplas tarefas/histórias
+(ex.: delegando a agentes de código em sequência) deve acionar o
+`docs-plan-keeper` para atualizar `docs/tasks/` e `docs/dashboard.html` após
+**cada** tarefa concluída, não só ao final do backlog — o dashboard existe
+para acompanhamento em tempo real, não apenas registro histórico. Este
+repositório define subagentes com fronteira de escopo rígida em
+`.claude/agents/`: `spring-boot-dev` é o único que deve alterar código em
+`src/`, dependências do `build.gradle` ou `application.yml`;
+`docs-plan-keeper` é o único que deve editar `docs/` ou `CLAUDE.md`;
+`pr-reviewer` aponta violações de convenção em um PR/branch mas não corrige
+código.
+
+## Comandos
+
+```bash
+# executar a aplicação (JWT_SECRET é obrigatório)
+export JWT_SECRET="um-segredo-bem-grande-e-aleatorio"
+./gradlew bootRun
+
+# rodar toda a suíte de testes
+./gradlew test
+
+# rodar uma única classe de teste
+./gradlew test --tests "dev.dfsantos.myreadings.book.BookControllerTest"
+
+# rodar um único método de teste
+./gradlew test --tests "dev.dfsantos.myreadings.book.BookControllerTest.createWithoutStatusDefaultsToQueroLer"
+
+# build completo (compila + testes)
+./gradlew build
+```
+
+Variáveis de ambiente: `JWT_SECRET` (obrigatória, assina os JWTs HS256),
+`JWT_EXPIRATION_MINUTES` (default `1440`), `DB_PATH` (default
+`./data/myreadings.db`).
+
+O hook de commit (`commit-msg`, valida Conventional Commits) é instalado
+automaticamente via `core.hooksPath` em `settings.gradle` na primeira
+execução de qualquer comando Gradle — não precisa de setup manual.
 
 ## Stack confirmada
 
@@ -51,13 +92,21 @@ Documentação completa:
 
 ```
 dev.dfsantos.myreadings
-├── config/   # SecurityConfig, OpenApiConfig
-├── auth/     # AuthController, AuthService, JwtTokenProvider, JwtAuthenticationFilter, dto/
-├── user/     # User (entidade), UserRepository
-├── book/     # Book (entidade), ReadingStatus, BookRepository, BookService, BookController,
-             # BookSearchCriteria, dto/
-└── common/   # GlobalExceptionHandler, NotFoundException e demais exceções de domínio
+├── config/     # SecurityConfig, OpenApiConfig
+├── security/   # CurrentUser, JwtTokenProvider, JwtAuthenticationFilter,
+              # JwtAuthenticationEntryPoint, SecurityExceptionHandler
+├── user/       # User (entidade), UserRepository, AuthController, AuthService,
+              # EmailAlreadyInUseException, UserExceptionHandler, dto/
+├── book/       # Book (entidade), ReadingStatus, BookRepository, BookService,
+              # BookController, BookSearchCriteria, BookSpecifications,
+              # InvalidDateRangeException, BookExceptionHandler, dto/
+└── common/     # GlobalExceptionHandler, NotFoundException, InstantStringConverter,
+              # LocalDateStringConverter
 ```
+
+O pacote `auth/` não existe mais — foi fundido em `user/` (infraestrutura de
+JWT ficou em `security/`) pela refatoração de modularização descrita em
+"Refatoração técnica" abaixo.
 
 Detalhes de camadas, nomenclatura, modelagem e testes em
 [`.claude/rules/code-conventions.md`](.claude/rules/code-conventions.md) —
@@ -126,6 +175,15 @@ resumo das decisões mais relevantes:
 
 Histórias concluídas (todas as tarefas e critérios de aceite verificados
 no código e cobertos por teste):
+
+> Nota: os caminhos de pacote citados nas entradas abaixo (ex.:
+> `common/CurrentUser.id()`, `AuthService`/`AuthController` sem pacote
+> explícito) refletem a árvore vigente **no momento em que cada história**
+> foi concluída (US-01 a US-18), anterior à refatoração de modularização
+> em vertical slices (ver "Refatoração técnica" ao final desta seção). A
+> árvore de pacotes **atual** é a descrita em "Convenções de
+> pacote/estrutura" acima — ex.: `CurrentUser` está hoje em `security/`, e
+> `AuthService`/`AuthController` em `user/`.
 
 - [US-01 — Criar conta](docs/tasks/01-criar-conta.md): `POST /api/v1/auth/register`,
   entidade `User`, `UserRepository`, `SecurityConfig` (bean `PasswordEncoder`
@@ -353,3 +411,21 @@ US-16 (combinar filtros) e qualquer validação futura de query param.
 Todo o backlog de histórias de usuário (US-01 a US-18) está implementado —
 ver [`docs/dashboard.html`](docs/dashboard.html) para o progresso agregado
 e [`docs/tasks/`](docs/tasks/) para o detalhe de cada uma.
+
+## Refatoração técnica — modularização em vertical slices (RF-01 a RF-05)
+
+Concluída a refatoração de modularização em vertical slices descrita na
+[spec](docs/specs/refatoracao-modularizacao-vertical-slice.md) e no
+[plano técnico](docs/plans/refatoracao-modularizacao-vertical-slice.md)
+correspondentes — ver [`docs/tasks/19-extrair-pacote-security.md`](docs/tasks/19-extrair-pacote-security.md)
+a [`docs/tasks/24-atualizar-documentacao-modularizacao.md`](docs/tasks/24-atualizar-documentacao-modularizacao.md)
+(RF-01 a RF-06) para o detalhe de cada fase. Resumo: extração do pacote
+`security/` (infraestrutura de JWT, antes espalhada entre `common`/`auth`),
+fusão de `auth/` em `user/`, internalização de `InvalidDateRangeException`
+em `book/`, redução de `common/GlobalExceptionHandler` ao conjunto de
+erros genéricos de framework, e segmentação das migrações Flyway por
+módulo (`db/migration/user/`, `db/migration/book/`). **Nenhuma rota, status
+HTTP ou corpo de resposta da API mudou** — é reorganização pura de
+pacotes/arquivos, confirmada por `./gradlew build` verde a cada fase sem
+nenhuma asserção de teste alterada.
+</content>

@@ -15,6 +15,7 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+    locations: classpath:db/migration/user,classpath:db/migration/book
   data:
     web:
       pageable:

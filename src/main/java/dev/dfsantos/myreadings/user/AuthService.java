@@ -1,11 +1,10 @@
-package dev.dfsantos.myreadings.auth;
+package dev.dfsantos.myreadings.user;
 
-import dev.dfsantos.myreadings.auth.dto.LoginRequest;
-import dev.dfsantos.myreadings.auth.dto.RegisterRequest;
-import dev.dfsantos.myreadings.auth.dto.RegisterResponse;
-import dev.dfsantos.myreadings.auth.dto.TokenResponse;
-import dev.dfsantos.myreadings.user.User;
-import dev.dfsantos.myreadings.user.UserRepository;
+import dev.dfsantos.myreadings.user.dto.LoginRequest;
+import dev.dfsantos.myreadings.user.dto.RegisterRequest;
+import dev.dfsantos.myreadings.user.dto.RegisterResponse;
+import dev.dfsantos.myreadings.user.dto.TokenResponse;
+import dev.dfsantos.myreadings.security.JwtTokenProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

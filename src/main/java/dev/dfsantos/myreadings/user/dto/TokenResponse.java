@@ -1,4 +1,4 @@
-package dev.dfsantos.myreadings.auth.dto;
+package dev.dfsantos.myreadings.user.dto;
 
 public record TokenResponse(String accessToken, long expiresInSeconds) {
 }
